@@ -1,0 +1,772 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample Server pets",
+        "title": "Swagger Example API",
+        "contact": {},
+        "version": "0.0.1"
+    },
+    "paths": {
+        "/demo": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "查询Demo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "唯一标识",
+                        "name": "did",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每秒请求量",
+                        "name": "qps",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"查询成功\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "修改Demo",
+                "parameters": [
+                    {
+                        "description": "修改Demo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Demo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "创建Demo",
+                "parameters": [
+                    {
+                        "description": "创建Demo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Demo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "删除Demo",
+                "parameters": [
+                    {
+                        "description": "删除Demo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.Demo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/demo/delete-batch": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "批量删除Demo",
+                "parameters": [
+                    {
+                        "description": "批量删除Demo",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/demo/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "查询Demo列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "code",
+                        "name": "code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "createdAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "唯一标识",
+                        "name": "did",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每秒请求量",
+                        "name": "qps",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "uid",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "updatedAt",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"查询成功\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "查询File",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "已经上传的分片",
+                        "name": "alreadyChunk",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件MD5",
+                        "name": "fileMd5",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件路径",
+                        "name": "filePath",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件大小",
+                        "name": "fileSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件唯一标识",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前分片",
+                        "name": "index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否完成",
+                        "name": "isFinish",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件总分片数",
+                        "name": "totalChunk",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"查询成功\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "修改File",
+                "parameters": [
+                    {
+                        "description": "修改File",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.File"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "创建File",
+                "parameters": [
+                    {
+                        "description": "创建File",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.File"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "删除File",
+                "parameters": [
+                    {
+                        "description": "删除File",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.File"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/chunkid": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "获取分块文件id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "已经上传的分片",
+                        "name": "alreadyChunk",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件MD5",
+                        "name": "fileMd5",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件路径",
+                        "name": "filePath",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件大小",
+                        "name": "fileSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件唯一标识",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前分片",
+                        "name": "index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否完成",
+                        "name": "isFinish",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件总分片数",
+                        "name": "totalChunk",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/delete-batch": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "批量删除File",
+                "parameters": [
+                    {
+                        "description": "批量删除File",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.Ids"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "查询File列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "已经上传的分片",
+                        "name": "alreadyChunk",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件MD5",
+                        "name": "fileMd5",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件路径",
+                        "name": "filePath",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件大小",
+                        "name": "fileSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件唯一标识",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前分片",
+                        "name": "index",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否完成",
+                        "name": "isFinish",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "文件总分片数",
+                        "name": "totalChunk",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"查询成功\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/merge-chunk": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "合并分片文件",
+                "parameters": [
+                    {
+                        "description": "合并分片文件",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.File"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/upload-chunk": {
+            "post": {
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "File"
+                ],
+                "summary": "分片上传File",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "分片上传File",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"code\":200,\"msg\":\"\",\"data\":{}\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.Demo": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "code",
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "did": {
+                    "description": "唯一标识",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "qps": {
+                    "description": "每秒请求量",
+                    "type": "integer"
+                },
+                "uid": {
+                    "description": "用户id",
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.File": {
+            "type": "object",
+            "properties": {
+                "alreadyChunk": {
+                    "description": "已经上传的分片",
+                    "type": "string"
+                },
+                "fileMd5": {
+                    "description": "文件MD5",
+                    "type": "string"
+                },
+                "filePath": {
+                    "description": "文件路径",
+                    "type": "string"
+                },
+                "fileSize": {
+                    "description": "文件大小",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "文件唯一标识",
+                    "type": "integer"
+                },
+                "index": {
+                    "description": "当前分片",
+                    "type": "integer"
+                },
+                "isFinish": {
+                    "description": "是否完成",
+                    "type": "boolean"
+                },
+                "totalChunk": {
+                    "description": "文件总分片数",
+                    "type": "integer"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "request.Ids": {
+            "type": "object",
+            "properties": {
+                "ids": {
+                    "description": "id切片",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "token",
+            "in": "header"
+        }
+    }
+}

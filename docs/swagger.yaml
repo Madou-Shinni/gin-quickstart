@@ -1,0 +1,503 @@
+definitions:
+  domain.Demo:
+    properties:
+      code:
+        description: code
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      did:
+        description: 唯一标识
+        type: integer
+      id:
+        type: integer
+      qps:
+        description: 每秒请求量
+        type: integer
+      uid:
+        description: 用户id
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  domain.File:
+    properties:
+      alreadyChunk:
+        description: 已经上传的分片
+        type: string
+      fileMd5:
+        description: 文件MD5
+        type: string
+      filePath:
+        description: 文件路径
+        type: string
+      fileSize:
+        description: 文件大小
+        type: string
+      id:
+        description: 文件唯一标识
+        type: integer
+      index:
+        description: 当前分片
+        type: integer
+      isFinish:
+        description: 是否完成
+        type: boolean
+      totalChunk:
+        description: 文件总分片数
+        type: integer
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  request.Ids:
+    properties:
+      ids:
+        description: id切片
+        items:
+          type: integer
+        type: array
+    type: object
+info:
+  contact: {}
+  description: This is a sample Server pets
+  title: Swagger Example API
+  version: 0.0.1
+paths:
+  /demo:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除Demo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Demo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 删除Demo
+      tags:
+      - Demo
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: code
+        in: query
+        name: code
+        type: string
+      - in: query
+        name: createdAt
+        type: string
+      - description: 唯一标识
+        in: query
+        name: did
+        type: integer
+      - in: query
+        name: id
+        type: integer
+      - description: 每秒请求量
+        in: query
+        name: qps
+        type: integer
+      - description: 用户id
+        in: query
+        name: uid
+        type: integer
+      - in: query
+        name: updatedAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"查询成功","data":{}"}'
+          schema:
+            type: string
+      summary: 查询Demo
+      tags:
+      - Demo
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建Demo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Demo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 创建Demo
+      tags:
+      - Demo
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 修改Demo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Demo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 修改Demo
+      tags:
+      - Demo
+  /demo/delete-batch:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除Demo
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 批量删除Demo
+      tags:
+      - Demo
+  /demo/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: code
+        in: query
+        name: code
+        type: string
+      - in: query
+        name: createdAt
+        type: string
+      - description: 唯一标识
+        in: query
+        name: did
+        type: integer
+      - in: query
+        name: id
+        type: integer
+      - description: 每秒请求量
+        in: query
+        name: qps
+        type: integer
+      - description: 用户id
+        in: query
+        name: uid
+        type: integer
+      - in: query
+        name: updatedAt
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"查询成功","data":{}"}'
+          schema:
+            type: string
+      summary: 查询Demo列表
+      tags:
+      - Demo
+  /file:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除File
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 删除File
+      tags:
+      - File
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 已经上传的分片
+        in: query
+        name: alreadyChunk
+        type: string
+      - description: 文件MD5
+        in: query
+        name: fileMd5
+        type: string
+      - description: 文件路径
+        in: query
+        name: filePath
+        type: string
+      - description: 文件大小
+        in: query
+        name: fileSize
+        type: string
+      - description: 文件唯一标识
+        in: query
+        name: id
+        type: integer
+      - description: 当前分片
+        in: query
+        name: index
+        type: integer
+      - description: 是否完成
+        in: query
+        name: isFinish
+        type: boolean
+      - description: 文件总分片数
+        in: query
+        name: totalChunk
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"查询成功","data":{}"}'
+          schema:
+            type: string
+      summary: 查询File
+      tags:
+      - File
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 创建File
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 创建File
+      tags:
+      - File
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 修改File
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 修改File
+      tags:
+      - File
+  /file/chunkid:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 已经上传的分片
+        in: query
+        name: alreadyChunk
+        type: string
+      - description: 文件MD5
+        in: query
+        name: fileMd5
+        type: string
+      - description: 文件路径
+        in: query
+        name: filePath
+        type: string
+      - description: 文件大小
+        in: query
+        name: fileSize
+        type: string
+      - description: 文件唯一标识
+        in: query
+        name: id
+        type: integer
+      - description: 当前分片
+        in: query
+        name: index
+        type: integer
+      - description: 是否完成
+        in: query
+        name: isFinish
+        type: boolean
+      - description: 文件总分片数
+        in: query
+        name: totalChunk
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 获取分块文件id
+      tags:
+      - File
+  /file/delete-batch:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 批量删除File
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 批量删除File
+      tags:
+      - File
+  /file/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 已经上传的分片
+        in: query
+        name: alreadyChunk
+        type: string
+      - description: 文件MD5
+        in: query
+        name: fileMd5
+        type: string
+      - description: 文件路径
+        in: query
+        name: filePath
+        type: string
+      - description: 文件大小
+        in: query
+        name: fileSize
+        type: string
+      - description: 文件唯一标识
+        in: query
+        name: id
+        type: integer
+      - description: 当前分片
+        in: query
+        name: index
+        type: integer
+      - description: 是否完成
+        in: query
+        name: isFinish
+        type: boolean
+      - description: 文件总分片数
+        in: query
+        name: totalChunk
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"查询成功","data":{}"}'
+          schema:
+            type: string
+      summary: 查询File列表
+      tags:
+      - File
+  /file/merge-chunk:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 合并分片文件
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/domain.File'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 合并分片文件
+      tags:
+      - File
+  /file/upload-chunk:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: 分片上传File
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":200,"msg":"","data":{}"}'
+          schema:
+            type: string
+      summary: 分片上传File
+      tags:
+      - File
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: token
+    type: apiKey
+swagger: "2.0"
