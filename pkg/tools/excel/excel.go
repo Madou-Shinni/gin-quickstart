@@ -5,6 +5,7 @@ import (
 	"github.com/xuri/excelize/v2"
 	"reflect"
 	"regexp"
+	"strings"
 )
 
 //head，指定了此结构体字段对应的 Excel 列名。
@@ -13,7 +14,7 @@ import (
 //required，表示此字段必须包含非零值，否则在写入 Excel 时会报错。
 //omitempty，表示此字段如果是零值，则对应的单元格留空。
 //color，指定了列名所在单元格的颜色，通过这个字段，可以为不同的列名设置不同的底色，赋予一些含义，例如，可以将必填的列和选填的列，设置不同的底色。可以通过 Excel 的 RGB 颜色设置窗口，查看不同颜色对应的色号，作为 color 属性的值。
-// 解析结果
+// 字段的解析结果
 type Setting struct {
 	Head      string
 	Type      string
@@ -65,6 +66,9 @@ func parseFieldTag(s Setting, tag string) Setting {
 			s.OmitEmpty = true
 		case "color":
 			s.Color = value
+		case "select":
+			items := strings.Split(value, ",")
+			s.Select = append(s.Select, items...)
 		}
 	}
 
@@ -102,14 +106,18 @@ func StreamWriteBody(sw *excelize.StreamWriter, d interface{}) error {
 		data := make([][]interface{}, values.Len())
 		for i := 0; i < values.Len(); i++ {
 			// 取出切片中的每个结构体，利用反射获取值
-			record := values.Index(i)
+			record := values.Index(i).Elem()
 			if record.Kind() == reflect.Struct {
 				// 创建一个切片来表示一行数据
 				row := make([]interface{}, record.NumField())
 				for j := 0; j < record.NumField(); j++ {
 					// 遍历结构体中的字段，取出字段值
 					field := record.Field(j)
-					row[j] = field.Interface()
+					row[j] = excelize.Cell{
+						StyleID: 0,
+						Formula: "",
+						Value:   field.Interface(),
+					}
 				}
 				// 将每一行数据保存到二维数组中
 				data[i] = row
