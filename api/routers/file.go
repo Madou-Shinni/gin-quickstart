@@ -2,14 +2,12 @@ package routers
 
 import (
 	"github.com/Madou-Shinni/gin-quickstart/api/handle"
-	"github.com/Madou-Shinni/gin-quickstart/internal/data"
-	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 func FileRouterRegister(r *gin.Engine) {
 	fileGroup := r.Group("file")
-	fileHandle := handle.NewFileHandle(service.NewFileService(data.NewFileRepo()))
+	fileHandle := handle.NewFileHandle()
 	{
 		fileGroup.POST("", fileHandle.Add)
 		fileGroup.POST("/upload-chunk", fileHandle.UploadChunk)

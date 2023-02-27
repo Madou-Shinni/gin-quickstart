@@ -13,8 +13,8 @@ type DemoHandle struct {
 	s *service.DemoService
 }
 
-func NewDemoHandle(s *service.DemoService) *DemoHandle {
-	return &DemoHandle{s: s}
+func NewDemoHandle() *DemoHandle {
+	return &DemoHandle{s: service.NewDemoService()}
 }
 
 // Add 创建Demo

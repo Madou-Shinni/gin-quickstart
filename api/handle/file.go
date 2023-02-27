@@ -14,8 +14,8 @@ type FileHandle struct {
 	s *service.FileService
 }
 
-func NewFileHandle(s *service.FileService) *FileHandle {
-	return &FileHandle{s: s}
+func NewFileHandle() *FileHandle {
+	return &FileHandle{s: service.NewFileService()}
 }
 
 // Add 创建File

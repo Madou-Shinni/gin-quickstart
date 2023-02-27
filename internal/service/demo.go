@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
@@ -25,8 +26,8 @@ type DemoService struct {
 	repo DemoRepo
 }
 
-func NewDemoService(repo DemoRepo) *DemoService {
-	return &DemoService{repo: repo}
+func NewDemoService() *DemoService {
+	return &DemoService{repo: data.NewDemoRepo()}
 }
 
 func (s *DemoService) Add(demo domain.Demo) error {

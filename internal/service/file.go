@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
@@ -34,8 +35,8 @@ type FileService struct {
 	repo FileRepo
 }
 
-func NewFileService(repo FileRepo) *FileService {
-	return &FileService{repo: repo}
+func NewFileService() *FileService {
+	return &FileService{repo: data.NewFileRepo()}
 }
 
 func (s *FileService) Add(file domain.File) error {
