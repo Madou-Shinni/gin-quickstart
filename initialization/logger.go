@@ -3,6 +3,7 @@ package initialization
 import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/go-logger"
+	"time"
 )
 
 // 自定义日志初始化配置
@@ -10,7 +11,7 @@ func init() {
 	var err error
 
 	env := conf.Conf.Env
-	file := "/log/github.com/Madou-Shinni/gin-quickstart.log"
+	file := "./log/" + time.Now().Format("2006-01-02") + ".log"
 
 	if env == "dev" {
 		// 开发环境
