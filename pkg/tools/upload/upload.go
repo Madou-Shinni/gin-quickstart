@@ -221,7 +221,7 @@ func Chunked(filepath string, chunkSize int64) error {
 
 		outputFile, err := os.Create(outputFilename)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		writer := bufio.NewWriter(outputFile)
