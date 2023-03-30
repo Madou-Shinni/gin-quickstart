@@ -43,6 +43,9 @@ func GinLogger() gin.HandlerFunc {
 		c.Next()
 
 		cost := time.Since(start).Milliseconds()
+		// 接口耗时 小于1000显示单位毫秒 大于1000显示单位秒
+		costTime := map[bool]string{true: fmt.Sprintf("%vms", cost), false: fmt.Sprintf("%vs", float64(cost)/float64(1000))}[cost < 1000]
+
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -53,7 +56,7 @@ func GinLogger() gin.HandlerFunc {
 			zap.String("ip", c.ClientIP()),
 			zap.String("user-agent", c.Request.UserAgent()),
 			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
-			zap.String("cost", fmt.Sprintf("%vms", cost)),
+			zap.String("cost", costTime),
 		)
 	}
 }
