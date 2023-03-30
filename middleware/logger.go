@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/Madou-Shinni/go-logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -31,7 +32,7 @@ func GinLogger() gin.HandlerFunc {
 		bodyStr := ""
 
 		// 判断请求类型是否是json
-		if strings.ContainsAny(c.ContentType(), "application/json") {
+		if strings.Contains(c.ContentType(), "application/json") {
 			defer c.Request.Body.Close()
 			body, _ := ioutil.ReadAll(c.Request.Body)
 			//注意：重新赋值必须这样否则无法从context重在获取数据
@@ -41,7 +42,7 @@ func GinLogger() gin.HandlerFunc {
 
 		c.Next()
 
-		cost := time.Since(start)
+		cost := time.Since(start).Milliseconds()
 		logger.Info(path,
 			zap.Int("status", c.Writer.Status()),
 			zap.String("method", c.Request.Method),
@@ -52,7 +53,7 @@ func GinLogger() gin.HandlerFunc {
 			zap.String("ip", c.ClientIP()),
 			zap.String("user-agent", c.Request.UserAgent()),
 			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
-			zap.Duration("cost", cost),
+			zap.String("cost", fmt.Sprintf("%vms", cost)),
 		)
 	}
 }
