@@ -36,7 +36,7 @@ type FileService struct {
 }
 
 func NewFileService() *FileService {
-	return &FileService{repo: data.NewFileRepo()}
+	return &FileService{repo: &data.FileRepo{}}
 }
 
 func (s *FileService) Add(file domain.File) error {
@@ -192,7 +192,7 @@ func (s *FileService) MergeChunk(file domain.File) (domain.File, error) {
 		return domain.File{}, nil
 	}
 	// 合并文件
-	dst, err := upload.MergeChunk(dir)
+	dst, err := upload.MergeChunk(dir, file.FileName)
 	if err != nil {
 		logger.Error("upload.MergeChunk(file.ID, dir)", zap.Error(err))
 		return domain.File{}, err

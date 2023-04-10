@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const Security = "#eqw1"
+
 // MyClaims 自定义结构体，并内嵌jwt.StandardClaims
 // jwt.StandardClaims只包含官方字段
 // 需要自定义需要的字段
@@ -23,11 +25,11 @@ func GenerateAccessToken(claims MyClaims) (string, error) {
 	// 当前时间
 	now := time.Now()
 	// 过期时间
-	accessExpire := now.Unix() + conf.Conf.AccessExpire
+	accessExpire := now.Unix() + claims.ExpiresAt
 	//   签发人
-	issuer := conf.Conf.Issuer
+	issuer := claims.Issuer
 	// 密钥
-	secret := conf.Conf.Secret
+	secret := Security
 
 	claims = MyClaims{
 		UserId:   claims.UserId,
@@ -49,11 +51,11 @@ func GenerateRefreshToken(claims MyClaims) (string, error) {
 	// 当前时间
 	now := time.Now()
 	// 过期时间
-	refreshExpire := now.Unix() + conf.Conf.RefreshExpire
+	refreshExpire := now.Unix() + claims.ExpiresAt
 	//   签发人
-	issuer := conf.Conf.Issuer
+	issuer := claims.Issuer
 	// 密钥
-	secret := conf.Conf.Secret
+	secret := Security
 
 	claims = MyClaims{
 		UserId:   claims.UserId,

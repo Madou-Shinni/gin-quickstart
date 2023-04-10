@@ -18,6 +18,7 @@
 └─pkg // 外部依赖
     ├─constant // 常量
     ├─global // 全局变量
+    ├─model // 公共model
     ├─request // 请求参数
     ├─response // 返回参数
     └─tools // 工具包
@@ -62,6 +63,22 @@ jwt:
   secret: yoursecret
 ```
 
+### 代码生成器 
+进入cmd/gen目录下
+```go
+go run gen.go -m Article 自动生成代码
+生成代码如下
+../../internal/domain/article.go
+../../internal/service/article.go
+../../internal/data/article.go
+../../api/routers/article.go
+../../api/handle/article.go
+
+GLOBAL OPTIONS:
+--module value, -m value  生成模块的名称
+--help, -h                show help
+```
+
 ### 注册路由
 
 在`/api/handle`目录下创建go文件，例如demo.go，定义路由处理函数
@@ -72,6 +89,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -80,8 +98,8 @@ type DemoHandle struct {
 	s *service.DemoService
 }
 
-func NewDemoHandle(s *service.DemoService) *DemoHandle {
-	return &DemoHandle{s: s}
+func NewDemoHandle() *DemoHandle {
+	return &DemoHandle{s: service.NewDemoService()}
 }
 
 // Add 创建Demo
@@ -123,6 +141,29 @@ func (cl *DemoHandle) Delete(c *gin.Context) {
 	}
 
 	if err := cl.s.Delete(demo); err != nil {
+		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
+}
+
+// DeleteByIds 批量删除Demo
+// @Tags     Demo
+// @Summary  批量删除Demo
+// @accept   application/json
+// @Produce  application/json
+// @Param    data body     request.Ids true "批量删除Demo"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /demo/delete-batch [delete]
+func (cl *DemoHandle) DeleteByIds(c *gin.Context) {
+	var ids request.Ids
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	if err := cl.s.DeleteByIds(ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -210,18 +251,17 @@ package routers
 
 import (
 	"github.com/Madou-Shinni/gin-quickstart/api/handle"
-	"github.com/Madou-Shinni/gin-quickstart/internal/data"
-	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/gin-gonic/gin"
 )
 
 // 注册路由
 func DemoRouterRegister(r *gin.Engine) {
 	demoGroup := r.Group("demo")
-	demoHandle := handle.NewDemoHandle(service.NewDemoService(data.NewDemoRepo()))
+	demoHandle := handle.NewDemoHandle()
 	{
 		demoGroup.POST("", demoHandle.Add)
 		demoGroup.DELETE("", demoHandle.Delete)
+		demoGroup.DELETE("/delete-batch", demoHandle.DeleteByIds)
 		demoGroup.GET("", demoHandle.Find)
 		demoGroup.GET("/list", demoHandle.List)
 		demoGroup.PUT("", demoHandle.Update)
@@ -270,16 +310,12 @@ func init() {
 package domain
 
 import (
+	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
-	"gorm.io/gorm"
 )
 
 type Demo struct {
-	gorm.Model
-	Did  int64  `json:"did,omitempty" form:"did" gorm:"column:did;comment:唯一标识"`                                        // 唯一标识
-	Uid  int64  `json:"uid,omitempty" form:"uid" gorm:"column:uid;index:idx_uid_code,unique;comment:用户id"`              // 用户id
-	Code string `json:"code,omitempty" form:"code" gorm:"column:code;index:idx_uid_code,unique;comment:code值(验证请求来源);"` // code
-	QPS  int64  `json:"qps,omitempty" form:"qps" gorm:"column:qps;comment:每秒请求量;"`                                      // 每秒请求量
+	model.Model
 }
 
 type PageDemoSearch struct {
@@ -290,12 +326,14 @@ type PageDemoSearch struct {
 func (Demo) TableName() string {
 	return "demo"
 }
+
 ```
 
 ### 持久层data层
 
 在`internal/data/`目录下添加go文件，例如demo.go，注意：你需要在service中先定义需要用到的方法接口
 ```go
+// 定义接口
 type DemoRepo interface {
     Create(demo domain.Demo) error
     Delete(demo domain.Demo) error
@@ -303,6 +341,7 @@ type DemoRepo interface {
     Find(demo domain.Demo) (domain.Demo, error)
     List(page domain.PageDemoSearch) ([]domain.Demo, error)
     Count() (int64, error)
+    DeleteByIds(ids request.Ids) error
 }
 ```
 然后在data层实现接口中定义的方法
@@ -311,16 +350,12 @@ package data
 
 import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
-	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/pagelimit"
 )
 
 type DemoRepo struct {
-}
-
-func NewDemoRepo() service.DemoRepo {
-	return &DemoRepo{}
 }
 
 func (s *DemoRepo) Create(demo domain.Demo) error {
@@ -331,19 +366,17 @@ func (s *DemoRepo) Delete(demo domain.Demo) error {
 	return global.DB.Delete(&demo).Error
 }
 
+func (s *DemoRepo) DeleteByIds(ids request.Ids) error {
+	return global.DB.Delete(&[]domain.Demo{}, ids.Ids).Error
+}
+
 func (s *DemoRepo) Update(demo domain.Demo) error {
 	return global.DB.Updates(&demo).Error
 }
 
 func (s *DemoRepo) Find(demo domain.Demo) (domain.Demo, error) {
 	db := global.DB.Model(&domain.Demo{})
-	if demo.Did != 0 {
-		db = db.Where("cid = ?", demo.Did)
-	}
-
-	if demo.Uid != 0 {
-		db = db.Where("uid = ?", demo.Uid)
-	}
+	// TODO：条件过滤
 
 	res := db.First(&demo)
 
@@ -360,13 +393,7 @@ func (s *DemoRepo) List(page domain.PageDemoSearch) ([]domain.Demo, error) {
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 
-	if page.Did != 0 {
-		db = db.Where("cid = ?", page.Did)
-	}
-
-	if page.Uid != 0 {
-		db = db.Where("uid = ?", page.Uid)
-	}
+	// TODO：条件过滤
 
 	err = db.Offset(offset).Limit(limit).Find(&demoList).Error
 
@@ -383,7 +410,6 @@ func (s *DemoRepo) Count() (int64, error) {
 
 	return count, err
 }
-
 ```
 
 ### 业务处理service层
@@ -393,10 +419,10 @@ func (s *DemoRepo) Count() (int64, error) {
 package service
 
 import (
+	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/letter"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/snowflake"
 	"github.com/Madou-Shinni/go-logger"
 	"go.uber.org/zap"
 )
@@ -409,28 +435,18 @@ type DemoRepo interface {
 	Find(demo domain.Demo) (domain.Demo, error)
 	List(page domain.PageDemoSearch) ([]domain.Demo, error)
 	Count() (int64, error)
+	DeleteByIds(ids request.Ids) error
 }
 
 type DemoService struct {
 	repo DemoRepo
 }
 
-func NewDemoService(repo DemoRepo) *DemoService {
-	return &DemoService{repo: repo}
+func NewDemoService() *DemoService {
+	return &DemoService{repo: &data.DemoRepo{}}
 }
 
 func (s *DemoService) Add(demo domain.Demo) error {
-	// 1.生成唯一标识
-	// 因为我们在全局初始化的时候已经初始化了雪花算法的机器节点
-	// 所以我们可以直接使用
-	did := snowflake.GenerateID()
-
-	// 2.生成code 20位
-	code := letter.GenerateCode(20)
-
-	demo.Did = did
-	demo.Code = code
-
 	// 3.持久化入库
 	if err := s.repo.Create(demo); err != nil {
 		// 4.记录日志
@@ -477,13 +493,13 @@ func (s *DemoService) List(page domain.PageDemoSearch) (response.PageResponse, e
 
 	data, err := s.repo.List(page)
 	if err != nil {
-		logger.Error("s.repo.List(demo)", zap.Error(err), zap.Any("domain.PageDemoSearch", page))
+		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageDemoSearch", page))
 		return pageRes, err
 	}
 
 	count, err := s.repo.Count()
 	if err != nil {
-		logger.Error("s.repo.Count()", zap.Error(err), zap.Any("domain.PageDemoSearch", page))
+		logger.Error("s.repo.Count()", zap.Error(err))
 		return pageRes, err
 	}
 
@@ -491,6 +507,15 @@ func (s *DemoService) List(page domain.PageDemoSearch) (response.PageResponse, e
 	pageRes.Total = count
 
 	return pageRes, nil
+}
+
+func (s *DemoService) DeleteByIds(ids request.Ids) error {
+	if err := s.repo.DeleteByIds(ids); err != nil {
+		logger.Error("s.DeleteByIds(ids)", zap.Error(err), zap.Any("ids request.Ids", ids))
+		return err
+	}
+
+	return nil
 }
 ```
 

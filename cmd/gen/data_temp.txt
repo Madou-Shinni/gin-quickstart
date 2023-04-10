@@ -1,0 +1,64 @@
+package data
+
+import (
+	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/pagelimit"
+)
+
+type {{.Module}}Repo struct {
+}
+
+func (s *{{.Module}}Repo) Create({{.ModuleLower}} domain.{{.Module}}) error {
+	return global.DB.Create(&{{.ModuleLower}}).Error
+}
+
+func (s *{{.Module}}Repo) Delete({{.ModuleLower}} domain.{{.Module}}) error {
+	return global.DB.Delete(&{{.ModuleLower}}).Error
+}
+
+func (s *{{.Module}}Repo) DeleteByIds(ids request.Ids) error {
+	return global.DB.Delete(&[]domain.{{.Module}}{}, ids.Ids).Error
+}
+
+func (s *{{.Module}}Repo) Update({{.ModuleLower}} domain.{{.Module}}) error {
+	return global.DB.Updates(&{{.ModuleLower}}).Error
+}
+
+func (s *{{.Module}}Repo) Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
+	db := global.DB.Model(&domain.{{.Module}}{})
+	// TODO：条件过滤
+
+	res := db.First(&{{.ModuleLower}})
+
+	return {{.ModuleLower}}, res.Error
+}
+
+func (s *{{.Module}}Repo) List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, error) {
+	var (
+		{{.ModuleLower}}List []domain.{{.Module}}
+		err      error
+	)
+	// db
+	db := global.DB.Model(&domain.{{.Module}}{})
+	// page
+	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
+
+	// TODO：条件过滤
+
+	err = db.Offset(offset).Limit(limit).Find(&{{.ModuleLower}}List).Error
+
+	return {{.ModuleLower}}List, err
+}
+
+func (s *{{.Module}}Repo) Count() (int64, error) {
+	var (
+		count int64
+		err   error
+	)
+
+	err = global.DB.Model(&domain.{{.Module}}{}).Count(&count).Error
+
+	return count, err
+}

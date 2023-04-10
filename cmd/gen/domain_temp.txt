@@ -5,15 +5,15 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 )
 
-type Demo struct {
+type {{.Module}} struct {
 	model.Model
 }
 
-type PageDemoSearch struct {
-	Demo
+type Page{{.Module}}Search struct {
+	{{.Module}}
 	request.PageSearch
 }
 
-func (Demo) TableName() string {
-	return "demo"
+func ({{.Module}}) TableName() string {
+	return "{{.ModuleLower}}"
 }

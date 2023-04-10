@@ -2,17 +2,12 @@ package data
 
 import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
-	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/pagelimit"
 )
 
 type FileRepo struct {
-}
-
-func NewFileRepo() service.FileRepo {
-	return &FileRepo{}
 }
 
 func (s *FileRepo) Create(file domain.File) error {

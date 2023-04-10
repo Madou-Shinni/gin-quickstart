@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"testing"
 )
 
@@ -11,6 +12,10 @@ func TestGenerateToken(t *testing.T) {
 	claims := MyClaims{
 		UserId:   1,
 		Username: "sni",
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: 0,
+			IssuedAt:  0,
+		},
 	}
 	accessToken, err := GenerateAccessToken(claims)
 	refreshToken, err := GenerateRefreshToken(claims)
@@ -28,6 +33,10 @@ func TestParseToken(t *testing.T) {
 	claims := MyClaims{
 		UserId:   1,
 		Username: "sni",
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: 0,
+			IssuedAt:  0,
+		},
 	}
 	token, _ := GenerateAccessToken(claims)
 	tokenInfo, err := ParseToken(token)
@@ -45,6 +54,10 @@ func TestRefreshToken(t *testing.T) {
 	claims := MyClaims{
 		UserId:   1,
 		Username: "sni",
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: 0,
+			IssuedAt:  0,
+		},
 	}
 	token, _ := GenerateRefreshToken(claims)
 

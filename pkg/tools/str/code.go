@@ -1,4 +1,4 @@
-package letter
+package str
 
 import (
 	"math/rand"

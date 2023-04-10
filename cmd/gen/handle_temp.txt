@@ -1,0 +1,160 @@
+package handle
+
+import (
+	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
+	"github.com/Madou-Shinni/gin-quickstart/internal/service"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
+	"github.com/gin-gonic/gin"
+)
+
+type {{.Module}}Handle struct {
+	s *service.{{.Module}}Service
+}
+
+func New{{.Module}}Handle() *{{.Module}}Handle {
+	return &{{.Module}}Handle{s: service.New{{.Module}}Service()}
+}
+
+// Add 创建{{.Module}}
+// @Tags     {{.Module}}
+// @Summary  创建{{.Module}}
+// @accept   application/json
+// @Produce  application/json
+// @Param    data body     domain.{{.Module}} true "创建{{.Module}}"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /{{.ModuleLower}} [post]
+func (cl *{{.Module}}Handle) Add(c *gin.Context) {
+	var {{.ModuleLower}} domain.{{.Module}}
+	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	if err := cl.s.Add({{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
+}
+
+// Delete 删除{{.Module}}
+// @Tags     {{.Module}}
+// @Summary  删除{{.Module}}
+// @accept   application/json
+// @Produce  application/json
+// @Param    data body     domain.{{.Module}} true "删除{{.Module}}"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /{{.ModuleLower}} [delete]
+func (cl *{{.Module}}Handle) Delete(c *gin.Context) {
+	var {{.ModuleLower}} domain.{{.Module}}
+	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	if err := cl.s.Delete({{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
+}
+
+// DeleteByIds 批量删除{{.Module}}
+// @Tags     {{.Module}}
+// @Summary  批量删除{{.Module}}
+// @accept   application/json
+// @Produce  application/json
+// @Param    data body     request.Ids true "批量删除{{.Module}}"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /{{.ModuleLower}}/delete-batch [delete]
+func (cl *{{.Module}}Handle) DeleteByIds(c *gin.Context) {
+	var ids request.Ids
+	if err := c.ShouldBindJSON(&ids); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	if err := cl.s.DeleteByIds(ids); err != nil {
+		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
+}
+
+// Update 修改{{.Module}}
+// @Tags     {{.Module}}
+// @Summary  修改{{.Module}}
+// @accept   application/json
+// @Produce  application/json
+// @Param    data body     domain.{{.Module}} true "修改{{.Module}}"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /{{.ModuleLower}} [put]
+func (cl *{{.Module}}Handle) Update(c *gin.Context) {
+	var {{.ModuleLower}} domain.{{.Module}}
+	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	if err := cl.s.Update({{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
+}
+
+// Find 查询{{.Module}}
+// @Tags     {{.Module}}
+// @Summary  查询{{.Module}}
+// @accept   application/json
+// @Produce  application/json
+// @Param    data query     domain.{{.Module}} true "查询{{.Module}}"
+// @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
+// @Router   /{{.ModuleLower}} [get]
+func (cl *{{.Module}}Handle) Find(c *gin.Context) {
+	var {{.ModuleLower}} domain.{{.Module}}
+	if err := c.ShouldBindQuery(&{{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	res, err := cl.s.Find({{.ModuleLower}})
+
+	if err != nil {
+		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c, res)
+}
+
+// List 查询{{.Module}}列表
+// @Tags     {{.Module}}
+// @Summary  查询{{.Module}}列表
+// @accept   application/json
+// @Produce  application/json
+// @Param    data query     domain.{{.Module}} true "查询{{.Module}}列表"
+// @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
+// @Router   /{{.ModuleLower}}/list [get]
+func (cl *{{.Module}}Handle) List(c *gin.Context) {
+	var {{.ModuleLower}} domain.Page{{.Module}}Search
+	if err := c.ShouldBindQuery(&{{.ModuleLower}}); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	res, err := cl.s.List({{.ModuleLower}})
+
+	if err != nil {
+		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c, res)
+}

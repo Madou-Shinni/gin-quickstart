@@ -5,8 +5,6 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/letter"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/snowflake"
 	"github.com/Madou-Shinni/go-logger"
 	"go.uber.org/zap"
 )
@@ -27,21 +25,10 @@ type DemoService struct {
 }
 
 func NewDemoService() *DemoService {
-	return &DemoService{repo: data.NewDemoRepo()}
+	return &DemoService{repo: &data.DemoRepo{}}
 }
 
 func (s *DemoService) Add(demo domain.Demo) error {
-	// 1.生成唯一标识
-	// 因为我们在全局初始化的时候已经初始化了雪花算法的机器节点
-	// 所以我们可以直接使用
-	did := snowflake.GenerateID()
-
-	// 2.生成code 20位
-	code := letter.GenerateCode(20)
-
-	demo.Did = did
-	demo.Code = code
-
 	// 3.持久化入库
 	if err := s.repo.Create(demo); err != nil {
 		// 4.记录日志
