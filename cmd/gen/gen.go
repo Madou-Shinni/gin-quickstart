@@ -64,7 +64,7 @@ func gen(c *cli.Context) error {
 		}
 	}
 
-	wg.Add(5)
+	wg.Add(len(tempSlice))
 	for i := 0; i < len(tempSlice); i++ {
 		// 启动5个goroutine生成不同的模板文件
 		go func(i int) {
