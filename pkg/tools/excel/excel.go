@@ -2,6 +2,7 @@ package excel
 
 import (
 	"errors"
+	"fmt"
 	"github.com/xuri/excelize/v2"
 	"reflect"
 	"regexp"
@@ -75,6 +76,36 @@ func parseFieldTag(s Setting, tag string) Setting {
 	return s
 }
 
+// 写入第一行标题数据，并给指定列添加数据校验
+// params: f *excelize.File写入 data interface{}结构体指针 map下拉选项 string列索引(A B C)，[]string选项
+func WriteHead(f *excelize.File, data interface{}, dataValidation map[string][]string) error {
+	var err error
+	sheet, err := f.NewSheet("Sheet1")
+	if err != nil {
+		return err
+	}
+
+	settingSlice := ParseExcelTag(data)
+	row := make([]interface{}, len(settingSlice)) // 创建一个切片，表示一行数据
+	for i := range settingSlice {
+		row[i] = settingSlice[i].Head
+	}
+	axis, err := excelize.CoordinatesToCellName(1, 1)
+	err = f.SetSheetRow("Sheet1", axis, &row)
+
+	for s := range dataValidation {
+		// 创建下拉选项列表
+		dv := excelize.NewDataValidation(true)
+		dv.SetSqref(fmt.Sprintf("%s1:%s1048576", s, s)) // 设置为整个 %s 列
+		err = dv.SetDropList(dataValidation[s])
+		err = f.AddDataValidation("Sheet1", dv)
+	}
+
+	// 设置活动工作表为 Sheet1
+	f.SetActiveSheet(sheet)
+	return err
+}
+
 // 写入第一行标题数据
 // @params: *excelize.StreamWriter流写入 interface{}结构体指针
 func StreamWriteHead(sw *excelize.StreamWriter, data interface{}) error {
@@ -94,8 +125,8 @@ func StreamWriteHead(sw *excelize.StreamWriter, data interface{}) error {
 	return sw.SetRow(axis, rows, excelize.RowOpts{Height: 16})
 }
 
-// 写入除了标题行的内容数据
-// @params: *excelize.StreamWriterexcel流式写入 interface{}切片结构体数据集
+// 写入除了标题行的内容数据，按结构体属性顺序写入
+// @params: *excelize.StreamWriterexcel流式写入 interface{}切片结构体指针数据集
 func StreamWriteBody(sw *excelize.StreamWriter, d interface{}) error {
 	// 判断d的数据类型
 	switch reflect.TypeOf(d).Kind() {
