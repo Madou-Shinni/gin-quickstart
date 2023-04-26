@@ -4,17 +4,18 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	"log"
 	"reflect"
 	"regexp"
 	"strings"
 )
 
-//head，指定了此结构体字段对应的 Excel 列名。
-//type，表示在使用反射进行数据解析时，会将此结构体字段的值作为指定的类型处理。
-//select，表示此字段所在的列，包含一个下拉列表，列表中的枚举值由 select 后面的值指定。
-//required，表示此字段必须包含非零值，否则在写入 Excel 时会报错。
-//omitempty，表示此字段如果是零值，则对应的单元格留空。
-//color，指定了列名所在单元格的颜色，通过这个字段，可以为不同的列名设置不同的底色，赋予一些含义，例如，可以将必填的列和选填的列，设置不同的底色。可以通过 Excel 的 RGB 颜色设置窗口，查看不同颜色对应的色号，作为 color 属性的值。
+// head，指定了此结构体字段对应的 Excel 列名。
+// type，表示在使用反射进行数据解析时，会将此结构体字段的值作为指定的类型处理。
+// select，表示此字段所在的列，包含一个下拉列表，列表中的枚举值由 select 后面的值指定。
+// required，表示此字段必须包含非零值，否则在写入 Excel 时会报错。
+// omitempty，表示此字段如果是零值，则对应的单元格留空。
+// color，指定了列名所在单元格的颜色，通过这个字段，可以为不同的列名设置不同的底色，赋予一些含义，例如，可以将必填的列和选填的列，设置不同的底色。可以通过 Excel 的 RGB 颜色设置窗口，查看不同颜色对应的色号，作为 color 属性的值。
 // 字段的解析结果
 type Setting struct {
 	Head      string
@@ -174,4 +175,29 @@ func StreamWriteBody(sw *excelize.StreamWriter, d interface{}) error {
 	}
 
 	return nil
+}
+
+// StreamWriterAllRows 流式写出数据集，合并单元格，自定义样式
+// param: sw *excelize.StreamWriter 流式写入器
+// param: rows [][]interface{} 所有行数据 []interface{} 一行所有列数据
+// param: mergeCell 需要合并的单元格 "A1:B1"
+func StreamWriterAllRows(sw *excelize.StreamWriter, content [][]interface{}, mergeCell ...string) {
+	// 合并单元格
+	for i := 0; i < len(mergeCell); i++ {
+		if !strings.Contains(mergeCell[i], ":") {
+			fmt.Printf("Invalid parameter: %s", mergeCell[i])
+			return
+		}
+		split := strings.Split(mergeCell[i], ":")
+		sw.MergeCell(split[0], split[1])
+	}
+
+	// 生成内容
+	for i := range content {
+		cell, err := excelize.CoordinatesToCellName(1, i+1)
+		err = sw.SetRow(cell, content[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 }
