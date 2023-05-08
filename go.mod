@@ -14,7 +14,6 @@ require (
 	github.com/swaggo/files v1.0.0
 	github.com/swaggo/gin-swagger v1.5.3
 	github.com/swaggo/swag v1.8.1
-	github.com/urfave/cli/v2 v2.25.1
 	github.com/xuri/excelize/v2 v2.7.0
 	go.uber.org/zap v1.24.0
 	gorm.io/driver/mysql v1.4.5
