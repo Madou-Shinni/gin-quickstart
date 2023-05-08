@@ -29,6 +29,7 @@
 ```
 
 ## 快速开始
+git clont github.com/Madou-Shinni/gin-quickstart
 
 ### 修改配置文件
 ```yml
@@ -63,16 +64,16 @@ jwt:
   secret: yoursecret
 ```
 
-### 代码生成器 
-进入cmd/gen目录下
+### 代码生成器
+go install github.com/Madou-Shinni/gctl@latest
 ```go
-go run gen.go -m Article 自动生成代码
+gctl -m Article 自动生成代码
 生成代码如下
-../../internal/domain/article.go
-../../internal/service/article.go
-../../internal/data/article.go
-../../api/routers/article.go
-../../api/handle/article.go
+internal/domain/article.go
+internal/service/article.go
+internal/data/article.go
+api/routers/article.go
+api/handle/article.go
 
 GLOBAL OPTIONS:
 --module value, -m value  生成模块的名称
