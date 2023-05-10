@@ -29,7 +29,7 @@
 ```
 
 ## 快速开始
-git clont github.com/Madou-Shinni/gin-quickstart
+`git clont github.com/Madou-Shinni/gin-quickstart`
 
 ### 修改配置文件
 ```yml
@@ -65,7 +65,7 @@ jwt:
 ```
 
 ### 代码生成器
-go install github.com/Madou-Shinni/gctl@latest
+`go install github.com/Madou-Shinni/gctl@latest`
 ```go
 gctl -m Article 自动生成代码
 生成代码如下
