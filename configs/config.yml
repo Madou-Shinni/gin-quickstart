@@ -10,7 +10,7 @@ mysql:
   port: 3306
   user: "root"
   password: "123456"
-  dbname: "sni-msg"
+  dbname: "go-shop-server"
 # redis
 redis:
   addr: "127.0.0.1:6379"

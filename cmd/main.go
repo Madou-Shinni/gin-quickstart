@@ -14,6 +14,7 @@ import (
 // --parseDependency --parseInternal 识别到外部依赖
 // --output 文件生成目录
 //go:generate swag init --parseDependency --parseInternal --output ../docs
+//go:generate swag init --output ../docs
 
 // @title                      Swagger Example API
 // @version                    0.0.1
