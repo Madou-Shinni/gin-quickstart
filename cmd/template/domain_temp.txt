@@ -15,5 +15,5 @@ type Page{{.Module}}Search struct {
 }
 
 func ({{.Module}}) TableName() string {
-	return "{{.ModuleLower}}"
+	return "{{.ModuleCamelToSnake}}"
 }
