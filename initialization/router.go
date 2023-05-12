@@ -19,8 +19,7 @@ func RunServer() {
 	r.Use(middleware.GinLogger(), middleware.GinRecovery(true))
 
 	// 设置 swagger 访问路由
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8080/swagger/doc.json"),
-		ginSwagger.DefaultModelsExpandDepth(-1)))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// 跨域
 	r.Use(cors.Default())
@@ -31,5 +30,5 @@ func RunServer() {
 
 	fmt.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
 
-	r.Run(fmt.Sprintf(":%v", conf.Conf.ServerPort))
+	r.Run(fmt.Sprintf("0.0.0.0:%v", conf.Conf.ServerPort))
 }
