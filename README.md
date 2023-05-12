@@ -525,8 +525,8 @@ func (s *DemoService) DeleteByIds(ids request.Ids) error {
 进入`/cmd/`目录运行main.go文件
 
 ### 生成接口文档
-
-进入`/cmd/`目录打开控制台输出命令`swag init --parseDependency --parseInternal --output ../docs`
+使用swag 1.7.x版本 `go install github.com/swaggo/swag/cmd/swag@v1.7.9`
+进入`/cmd/`目录打开控制台输出命令`swag init --parseDependency --parseInternal --parseDepth 3 --output ../docs`
 ```go
 // 生成swagger文档
 // --parseDependency --parseInternal 识别到外部依赖
