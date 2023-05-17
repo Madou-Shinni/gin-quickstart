@@ -80,6 +80,35 @@ GLOBAL OPTIONS:
 --help, -h                show help
 ```
 
+### gorm自动迁移
+在`initialization/data.go`添加需要自动生成的结构体
+```go
+// mysql连接初始化
+func MysqlInit(config *conf.MysqlConfig) {
+	// dsn := "root:123456@tcp(192.168.0.6:3306)/gin?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf(
+		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		config.User, config.Password, config.Host, config.Port, config.DBName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		QueryFields: true, //打印sql
+		//SkipDefaultTransaction: true, //禁用事务
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// 自动迁移
+	db.AutoMigrate(
+		// 表
+		domain.File{},
+	)
+
+	global.DB = db
+}
+```
+
+
 ### 注册路由
 
 在`/api/handle`目录下创建go文件，例如demo.go，定义路由处理函数
