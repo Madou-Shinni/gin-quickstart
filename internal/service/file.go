@@ -24,7 +24,7 @@ import (
 type FileRepo interface {
 	Create(file domain.File) error
 	Delete(file domain.File) error
-	Update(file domain.File) error
+	Update(file map[string]interface{}) error
 	Find(file domain.File) (domain.File, error)
 	List(page domain.PageFileSearch) ([]domain.File, error)
 	Count() (int64, error)
@@ -66,7 +66,7 @@ func (s *FileService) Delete(file domain.File) error {
 	return nil
 }
 
-func (s *FileService) Update(file domain.File) error {
+func (s *FileService) Update(file map[string]interface{}) error {
 	if err := s.repo.Update(file); err != nil {
 		logger.Error("s.repo.Update(file)", zap.Error(err), zap.Any("domain.File", file))
 		return err

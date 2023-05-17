@@ -7,6 +7,7 @@ import (
 
 type Demo struct {
 	model.Model
+	F *string
 }
 
 type PageDemoSearch struct {

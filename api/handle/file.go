@@ -174,7 +174,7 @@ func (cl *FileHandle) DeleteByIds(c *gin.Context) {
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /file [put]
 func (cl *FileHandle) Update(c *gin.Context) {
-	var file domain.File
+	var file map[string]interface{}
 	if err := c.ShouldBindJSON(&file); err != nil {
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return

@@ -1,6 +1,8 @@
 package data
 
 import (
+	"errors"
+	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
@@ -22,8 +24,18 @@ func (s *FileRepo) DeleteByIds(ids request.Ids) error {
 	return global.DB.Delete(&[]domain.File{}, ids.Ids).Error
 }
 
-func (s *FileRepo) Update(file domain.File) error {
-	return global.DB.Updates(&file).Error
+func (s *FileRepo) Update(file map[string]interface{}) error {
+	var columns []string
+	for key := range file {
+		columns = append(columns, key)
+	}
+	if _, ok := file["id"]; !ok {
+		// 不存在id
+		return errors.New(fmt.Sprintf("missing %s.id", "file"))
+	}
+	model := domain.File{}
+	model.ID = int64(file["id"].(float64))
+	return global.DB.Model(&model).Select(columns).Updates(&file).Error
 }
 
 func (s *FileRepo) Find(file domain.File) (domain.File, error) {
