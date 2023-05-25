@@ -40,7 +40,7 @@ func GenerateAccessToken(claims MyClaims) (string, error) {
 		},
 	}
 	// 根据签名生成token，NewWithClaims(加密方式,claims) ==》 头部，载荷，签证
-	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
+	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 	return accessToken, err
 }
 
@@ -66,7 +66,7 @@ func GenerateRefreshToken(claims MyClaims) (string, error) {
 		},
 	}
 	// 根据签名生成token，NewWithClaims(加密方式,claims) ==》 头部，载荷，签证
-	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(secret)
+	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(secret))
 	return refreshToken, err
 }
 

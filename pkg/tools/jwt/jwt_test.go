@@ -29,6 +29,10 @@ func TestGenerateToken(t *testing.T) {
 	})
 }
 
+func Test1(t *testing.T) {
+
+}
+
 func TestParseToken(t *testing.T) {
 	claims := MyClaims{
 		UserId:   1,
