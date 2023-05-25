@@ -80,6 +80,35 @@ GLOBAL OPTIONS:
 --help, -h                show help
 ```
 
+### gorm自动迁移
+在`initialization/data.go`添加需要自动生成的结构体
+```go
+// mysql连接初始化
+func MysqlInit(config *conf.MysqlConfig) {
+	// dsn := "root:123456@tcp(192.168.0.6:3306)/gin?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf(
+		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		config.User, config.Password, config.Host, config.Port, config.DBName)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		QueryFields: true, //打印sql
+		//SkipDefaultTransaction: true, //禁用事务
+	})
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// 自动迁移
+	db.AutoMigrate(
+		// 表
+		domain.File{},
+	)
+
+	global.DB = db
+}
+```
+
+
 ### 注册路由
 
 在`/api/handle`目录下创建go文件，例如demo.go，定义路由处理函数
@@ -525,9 +554,8 @@ func (s *DemoService) DeleteByIds(ids request.Ids) error {
 进入`/cmd/`目录运行main.go文件
 
 ### 生成接口文档
-swagger工具安装
-`go install github.com/swaggo/swag/cmd/swag@latest`
-进入`/cmd/`目录打开控制台输出命令`swag init --output ../docs`
+使用swag 1.7.x版本 `go install github.com/swaggo/swag/cmd/swag@v1.7.9`
+进入`/cmd/`目录打开控制台输出命令`swag init --parseDependency --parseInternal --parseDepth 3 --output ../docs`
 ```go
 // 生成swagger文档
 // --parseDependency --parseInternal 识别到外部依赖

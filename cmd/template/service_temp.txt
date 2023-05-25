@@ -13,7 +13,7 @@ import (
 type {{.Module}}Repo interface {
 	Create({{.ModuleLower}} domain.{{.Module}}) error
 	Delete({{.ModuleLower}} domain.{{.Module}}) error
-	Update({{.ModuleLower}} domain.{{.Module}}) error
+	Update({{.ModuleLower}} map[string]interface{}) error
 	Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
 	List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, error)
 	Count() (int64, error)
@@ -48,7 +48,7 @@ func (s *{{.Module}}Service) Delete({{.ModuleLower}} domain.{{.Module}}) error {
 	return nil
 }
 
-func (s *{{.Module}}Service) Update({{.ModuleLower}} domain.{{.Module}}) error {
+func (s *{{.Module}}Service) Update({{.ModuleLower}} map[string]interface{}) error {
 	if err := s.repo.Update({{.ModuleLower}}); err != nil {
 		logger.Error("s.repo.Update({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err

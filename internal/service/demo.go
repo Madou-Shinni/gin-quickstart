@@ -13,7 +13,7 @@ import (
 type DemoRepo interface {
 	Create(demo domain.Demo) error
 	Delete(demo domain.Demo) error
-	Update(demo domain.Demo) error
+	Update(demo map[string]interface{}) error
 	Find(demo domain.Demo) (domain.Demo, error)
 	List(page domain.PageDemoSearch) ([]domain.Demo, error)
 	Count() (int64, error)
@@ -48,7 +48,7 @@ func (s *DemoService) Delete(demo domain.Demo) error {
 	return nil
 }
 
-func (s *DemoService) Update(demo domain.Demo) error {
+func (s *DemoService) Update(demo map[string]interface{}) error {
 	if err := s.repo.Update(demo); err != nil {
 		logger.Error("s.repo.Update(demo)", zap.Error(err), zap.Any("domain.Demo", demo))
 		return err

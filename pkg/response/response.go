@@ -23,7 +23,7 @@ func Success(c *gin.Context, data ...interface{}) {
 	r.Message = "success"
 
 	if len(data) > 0 {
-		r.Data = data
+		r.Data = data[0]
 	}
 
 	c.JSON(http.StatusOK, r)

@@ -95,7 +95,7 @@ func (cl *{{.Module}}Handle) DeleteByIds(c *gin.Context) {
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /{{.ModuleLower}} [put]
 func (cl *{{.Module}}Handle) Update(c *gin.Context) {
-	var {{.ModuleLower}} domain.{{.Module}}
+	var {{.ModuleLower}} map[string]interface{}
 	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return

@@ -11,9 +11,11 @@ import (
 )
 
 // 生成swagger文档
-// --parseDependency --parseInternal 识别到外部依赖
+// --parseDependency --parseInternal 识别到内外部依赖
+// --parseDepth 解析依赖包的深度默认100 设置深度可以大大加快生成速度(推荐使用这个)
 // --output 文件生成目录
 //go:generate swag init --parseDependency --parseInternal --output ../docs
+//go:generate swag init --parseDependency --parseInternal --parseDepth 3 --output ../docs
 //go:generate swag init --output ../docs
 
 // @title                      Swagger Example API

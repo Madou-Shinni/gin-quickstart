@@ -1,6 +1,8 @@
 package data
 
 import (
+    "errors"
+    "fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
@@ -22,8 +24,18 @@ func (s *{{.Module}}Repo) DeleteByIds(ids request.Ids) error {
 	return global.DB.Delete(&[]domain.{{.Module}}{}, ids.Ids).Error
 }
 
-func (s *{{.Module}}Repo) Update({{.ModuleLower}} domain.{{.Module}}) error {
-	return global.DB.Updates(&{{.ModuleLower}}).Error
+func (s *{{.Module}}Repo) Update({{.ModuleLower}} map[string]interface{}) error {
+    var columns []string
+	for key := range {{.ModuleLower}} {
+		columns = append(columns, key)
+	}
+	if _,ok := {{.ModuleLower}}["id"];!ok {
+        // 不存在id
+        return errors.New(fmt.Sprintf("missing %s.id","{{.ModuleLower}}"))
+    }
+	model := domain.{{.Module}}{}
+	model.ID = uint({{.ModuleLower}}["id"].(float64))
+	return global.DB.Model(&model).Select(columns).Updates(&{{.ModuleLower}}).Error
 }
 
 func (s *{{.Module}}Repo) Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
