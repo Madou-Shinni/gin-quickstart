@@ -29,7 +29,7 @@
 ```
 
 ## 快速开始
-`git clont github.com/Madou-Shinni/gin-quickstart`
+`git clone https://github.com/Madou-Shinni/gin-quickstart.git`
 
 ### 修改配置文件
 ```yml
