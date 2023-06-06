@@ -206,7 +206,7 @@ func (cl *FileHandle) Find(c *gin.Context) {
 	res, err := cl.s.Find(file)
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 
@@ -231,7 +231,7 @@ func (cl *FileHandle) List(c *gin.Context) {
 	res, err := cl.s.List(file)
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 
