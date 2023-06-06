@@ -127,7 +127,7 @@ func (cl *DemoHandle) Find(c *gin.Context) {
 	res, err := cl.s.Find(demo)
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 
@@ -152,7 +152,7 @@ func (cl *DemoHandle) List(c *gin.Context) {
 	res, err := cl.s.List(demo)
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 

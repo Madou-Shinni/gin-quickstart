@@ -127,7 +127,7 @@ func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 	res, err := cl.s.Find({{.ModuleLower}})
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 
@@ -152,7 +152,7 @@ func (cl *{{.Module}}Handle) List(c *gin.Context) {
 	res, err := cl.s.List({{.ModuleLower}})
 
 	if err != nil {
-		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
 
