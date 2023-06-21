@@ -1,6 +1,7 @@
 package initialization
 
 import (
+	"flag"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -23,9 +24,12 @@ func init() {
 // 初始化配置
 // 将配置文件的信息反序列化到结构体中
 func ConfigInit() {
-	viper.AddConfigPath("./configs")
-	viper.SetConfigName("config") // 读取配置文件
-	//viper.SetConfigFile("config.yml") // 读取配置文件
+	configFile := "configs/config.yml"
+	s := flag.String("f", configFile, "choose config file.")
+	flag.Parse()
+	//viper.AddConfigPath(configPath)
+	//viper.SetConfigName("config")     // 读取配置文件
+	viper.SetConfigFile(*s)     // 读取配置文件
 	err := viper.ReadInConfig() // 读取配置信息
 	if err != nil {
 		// 读取配置信息失败

@@ -1,0 +1,29 @@
+app:
+  # 环境：dev or prod
+  env: dev
+  # 分布式节点(用于生成分布式id应保证各个机器节点不一致)
+  machineID: 1
+  server-port: 8080
+# 数据库
+mysql:
+  host: "127.0.0.1"
+  port: 3306
+  user: "root"
+  password: "123456"
+  dbname: "go-shop-server"
+# redis
+redis:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 0
+# jwt
+jwt:
+  # 过期时间(秒)
+  # access_token 过期时间 1小时
+  access-expire: 3600
+  # refresh_token 过期时间 7天
+  refresh-expire: 604800
+  # 签名
+  issuer: sni
+  # 密钥
+  secret: yoursecret
