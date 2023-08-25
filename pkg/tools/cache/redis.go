@@ -20,12 +20,10 @@ func (r *RdbCache) Set(key string, value interface{}, expire time.Duration) erro
 }
 
 func (r *RdbCache) Get(key string) (interface{}, error) {
-	var res string
 	result, err := r.rdb.Get(key).Result()
 	if err != nil {
 		return nil, err
 	}
-	json.Unmarshal([]byte(result), &res)
 
 	if result != "" {
 		// 延长缓存的时间
@@ -34,7 +32,7 @@ func (r *RdbCache) Get(key string) (interface{}, error) {
 		}
 	}
 
-	return res, nil
+	return result, nil
 }
 
 func (r *RdbCache) Del(key string) error {
