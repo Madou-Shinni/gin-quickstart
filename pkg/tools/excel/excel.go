@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"log"
+	"mime/multipart"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // head，指定了此结构体字段对应的 Excel 列名。
@@ -200,4 +203,95 @@ func StreamWriterAllRows(sw *excelize.StreamWriter, content [][]interface{}, mer
 			log.Fatal(err)
 		}
 	}
+}
+
+// ParseExcelToSlice 解析excel中全部数据，返回[]T，与字段标签excel匹配的标题 列的内容为字段值
+// 目前支持类型string int int32 int64 *int *int32 *int64 time.time *time.Time
+//
+//	type TestStruct struct {
+//		Name      string     `excel:"姓名"`
+//		DateTime  *time.Time `excel:"时间"`
+//		StartTime time.Time  `excel:"开始时间"`
+//		}
+//
+// +---------+---------------------+---------------------+
+// |   姓名   |         时间         |        开始时间      |
+// +---------+---------------------+---------------------+
+// | 李嘉图   | 2000-01-20 00:00:00 | 2000-01-20 00:00:00 |
+// | Ricardo | 2000-01-20 00:00:00 | 2000-01-20 00:00:00 |
+// +---------+---------------------+---------------------+
+func ParseExcelToSlice[T any](file multipart.File) ([]T, error) {
+	f, err := excelize.OpenReader(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var slice []T
+	var headerMap map[string]int // 列标题与索引的映射
+
+	// 遍历所有工作表
+	for _, s := range f.GetSheetList() {
+		rows, err := f.GetRows(s)
+		if err != nil {
+			return nil, err
+		}
+
+		// 遍历所有行
+		for i, row := range rows {
+			if i == 0 {
+				// 取标题行，记录标题及其索引
+				headerMap = make(map[string]int)
+				for j, colCell := range row {
+					headerMap[colCell] = j
+				}
+				continue
+			}
+
+			// 通过反射获取传入的结构体字段的值和tag标签，设置值
+			var structType T
+			val := reflect.ValueOf(&structType).Elem()
+			tp := val.Type()
+			if val.Kind() == reflect.Struct {
+				// 获取所有的字段和excel tag
+				for k := 0; k < val.NumField(); k++ {
+					field := val.Field(k)
+					structField := tp.Field(k)
+					excelTag := structField.Tag.Get("excel")
+					// 根据指定tag标签来设置值
+					if colIndex, ok := headerMap[excelTag]; ok {
+						switch field.Type().Kind() {
+						case reflect.String:
+							val.Field(k).SetString(row[colIndex])
+						case reflect.Int, reflect.Int32, reflect.Int64:
+							intVal, _ := strconv.Atoi(row[colIndex])
+							val.Field(k).SetInt(int64(intVal))
+						case reflect.TypeOf(time.Time{}).Kind():
+							parse, err := time.Parse("2006-01-02 15:04:05", row[colIndex])
+							if err != nil {
+								return nil, fmt.Errorf("err: %v\n", err)
+							}
+							val.Field(k).Set(reflect.ValueOf(parse))
+						case reflect.Pointer: // 指针指向类型
+							switch field.Type().Elem().Kind() {
+							case reflect.TypeOf(time.Time{}).Kind():
+								parse, err := time.Parse("2006-01-02 15:04:05", row[colIndex])
+								if err != nil {
+									return nil, fmt.Errorf("err: %v\n", err)
+								}
+								val.Field(k).Set(reflect.ValueOf(&parse))
+							case reflect.Int, reflect.Int32, reflect.Int64:
+								intVal, _ := strconv.Atoi(row[colIndex])
+								val.Field(k).Set(reflect.ValueOf(&intVal))
+							}
+						}
+					}
+				}
+			}
+			if !reflect.ValueOf(structType).IsZero() {
+				slice = append(slice, structType)
+			}
+		}
+	}
+
+	return slice, nil
 }

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"log"
+	"os"
 	"testing"
+	"time"
 )
 
 type Excel struct {
@@ -178,4 +180,26 @@ func TestStreamWriterAllRows(t *testing.T) {
 	}
 
 	fmt.Println("Excel file created successfully.")
+}
+
+type TestStruct struct {
+	Name      string     `excel:"姓名"`
+	DateTime  *time.Time `excel:"时间"`
+	StartTime time.Time  `excel:"开始时间"`
+	Title     string     `excel:"标题"`
+	Age       int64      `excel:"年龄"`
+}
+
+func TestParseExcelToSlice(t *testing.T) {
+	dir, _ := os.Open("测试.xlsx")
+	v2, err := ParseExcelToSlice[TestStruct](dir)
+	if err != nil {
+		fmt.Println("err: ", err)
+		return
+	}
+
+	structs := v2
+	for _, testStruct := range structs {
+		fmt.Println(testStruct)
+	}
 }
