@@ -6,7 +6,7 @@ import (
 )
 
 // RedisMessagePublish 发布消息到消息队列
-func RedisMessagePublish[T any](rdb *redis.Client, channel string, data T) (int64, error) {
+func RedisMessagePublish(rdb *redis.Client, channel string, data interface{}) (int64, error) {
 	marshal, err := json.Marshal(data)
 	if err != nil {
 		return 0, err
