@@ -1,6 +1,6 @@
 module github.com/Madou-Shinni/gin-quickstart
 
-go 1.18
+go 1.20
 
 require (
 	github.com/Madou-Shinni/go-logger v0.0.0-20230105054950-6be022937854

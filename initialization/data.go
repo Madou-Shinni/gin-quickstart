@@ -61,6 +61,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	// 自动迁移
@@ -84,6 +85,7 @@ func RedisInit(config *conf.RedisConfig) {
 	_, err := rdb.Ping().Result()
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
 	global.Rdb = rdb
