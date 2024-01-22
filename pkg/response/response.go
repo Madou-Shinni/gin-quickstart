@@ -14,7 +14,7 @@ type Response struct {
 
 type PageResponse struct {
 	Total int64       `json:"total,omitempty"`
-	Data  interface{} `json:"data,omitempty"`
+	List  interface{} `json:"list,omitempty"`
 }
 
 func Success(c *gin.Context, data ...interface{}) {

@@ -85,7 +85,7 @@ func (s *DemoService) List(page domain.PageDemoSearch) (response.PageResponse, e
 		return pageRes, err
 	}
 
-	pageRes.Data = data
+	pageRes.List = data
 	pageRes.Total = count
 
 	return pageRes, nil
