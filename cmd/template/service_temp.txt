@@ -16,7 +16,7 @@ type {{.Module}}Repo interface {
 	Update({{.ModuleLower}} map[string]interface{}) error
 	Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
 	List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, error)
-	Count() (int64, error)
+	Count(page domain.Page{{.Module}}Search) (int64, error)
 	DeleteByIds(ids request.Ids) error
 }
 
@@ -79,13 +79,13 @@ func (s *{{.Module}}Service) List(page domain.Page{{.Module}}Search) (response.P
 		return pageRes, err
 	}
 
-	count, err := s.repo.Count()
+	count, err := s.repo.Count(page)
 	if err != nil {
 		logger.Error("s.repo.Count()", zap.Error(err))
 		return pageRes, err
 	}
 
-	pageRes.Data = data
+	pageRes.List = data
 	pageRes.Total = count
 
 	return pageRes, nil

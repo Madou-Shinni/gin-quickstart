@@ -64,13 +64,17 @@ func (s *{{.Module}}Repo) List(page domain.Page{{.Module}}Search) ([]domain.{{.M
 	return {{.ModuleLower}}List, err
 }
 
-func (s *{{.Module}}Repo) Count() (int64, error) {
+func (s *{{.Module}}Repo) Count(page domain.Page{{.Module}}Search) (int64, error) {
 	var (
 		count int64
 		err   error
 	)
 
-	err = global.DB.Model(&domain.{{.Module}}{}).Count(&count).Error
+	db := global.DB.Model(&domain.{{.Module}}{})
+
+	// TODO：条件过滤
+
+	err = db.Model(&domain.{{.Module}}{}).Count(&count).Error
 
 	return count, err
 }

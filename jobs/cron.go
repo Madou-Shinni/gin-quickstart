@@ -1,4 +1,4 @@
-package initialization
+package jobs
 
 import (
 	"github.com/robfig/cron/v3"

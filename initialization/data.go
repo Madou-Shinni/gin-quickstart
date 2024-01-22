@@ -59,6 +59,10 @@ func MysqlInit(config *conf.MysqlConfig) {
 		//SkipDefaultTransaction: true, //禁用事务
 	})
 
+	sqlDB, _ := db.DB()
+	sqlDB.SetMaxIdleConns(config.MaxIdleConns)
+	sqlDB.SetMaxOpenConns(config.MaxOpenConns)
+
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -94,5 +98,8 @@ func RedisInit(config *conf.RedisConfig) {
 
 // 释放资源
 func Close() {
+	if global.Rdb == nil {
+		return
+	}
 	global.Rdb.Close()
 }

@@ -18,11 +18,13 @@ type App struct {
 
 // mysql配置
 type MysqlConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	DBName   string `mapstructure:"dbname"`
+	Host         string `mapstructure:"host"`
+	Port         int    `mapstructure:"port"`
+	User         string `mapstructure:"user"`
+	Password     string `mapstructure:"password"`
+	DBName       string `mapstructure:"dbname"`
+	MaxIdleConns int    `mapstructure:"max-idle-conns" json:"max-idle-conns" yaml:"max-idle-conns"` // 空闲中的最大连接数
+	MaxOpenConns int    `mapstructure:"max-open-conns" json:"max-open-conns" yaml:"max-open-conns"` // 打开到数据库的最大连接数
 }
 
 // redis配置

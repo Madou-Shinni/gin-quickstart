@@ -6,7 +6,7 @@ import (
 )
 
 // 注册路由
-func {{.Module}}RouterRegister(r *gin.Engine) {
+func {{.Module}}RouterRegister(r *gin.RouterGroup) {
 	{{.ModuleLower}}Group := r.Group("{{.ModuleLower}}")
 	{{.ModuleLower}}Handle := handle.New{{.Module}}Handle()
 	{
