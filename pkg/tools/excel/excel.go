@@ -30,7 +30,7 @@ type Setting struct {
 }
 
 // 解析data中带ex的tag的字段，返回解析后的setting列表
-// @param interface{}结构体指针
+// param interface{}结构体指针
 func ParseExcelTag(data interface{}) []Setting {
 	var (
 		setting     Setting
@@ -111,7 +111,7 @@ func WriteHead(f *excelize.File, data interface{}, dataValidation map[string][]s
 }
 
 // 写入第一行标题数据
-// @params: *excelize.StreamWriter流写入 interface{}结构体指针
+// params: *excelize.StreamWriter流写入 interface{}结构体指针
 func StreamWriteHead(sw *excelize.StreamWriter, data interface{}) error {
 	settingSlice := ParseExcelTag(data)
 	rows := make([]interface{}, len(settingSlice)) // 创建一个切片，表示一行数据
@@ -130,7 +130,7 @@ func StreamWriteHead(sw *excelize.StreamWriter, data interface{}) error {
 }
 
 // 写入除了标题行的内容数据，按结构体属性顺序写入
-// @params: *excelize.StreamWriterexcel流式写入 interface{}切片结构体指针数据集
+// params: *excelize.StreamWriterexcel流式写入 interface{}切片结构体指针数据集
 func StreamWriteBody(sw *excelize.StreamWriter, d interface{}) error {
 	// 判断d的数据类型
 	switch reflect.TypeOf(d).Kind() {
