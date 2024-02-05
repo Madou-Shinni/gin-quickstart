@@ -139,7 +139,7 @@ func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 // @Summary  查询{{.Module}}列表
 // @accept   application/json
 // @Produce  application/json
-// @Param    data query     domain.{{.Module}} true "查询{{.Module}}列表"
+// @Param    data query     domain.Page{{.Module}}Search true "查询{{.Module}}列表"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
 // @Router   /{{.ModuleLower}}/list [get]
 func (cl *{{.Module}}Handle) List(c *gin.Context) {
