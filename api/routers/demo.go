@@ -6,7 +6,7 @@ import (
 )
 
 // 注册路由
-func DemoRouterRegister(r *gin.Engine) {
+func DemoRouterRegister(r *gin.RouterGroup) {
 	demoGroup := r.Group("demo")
 	demoHandle := handle.NewDemoHandle()
 	{

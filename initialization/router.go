@@ -29,8 +29,12 @@ func RunServer() {
 	// 缓存
 	r.Use(middleware.Cache(cache.NewRdbCache(global.Rdb)))
 
+	// 设置路由组
+	public := r.Group("")
+	//private := r.Group("private")
+
 	// 注册路由
-	routers.DemoRouterRegister(r)
+	routers.DemoRouterRegister(public)
 	routers.FileRouterRegister(r)
 
 	fmt.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
