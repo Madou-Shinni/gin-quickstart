@@ -33,7 +33,7 @@
 git clone https://github.com/Madou-Shinni/gin-quickstart.git
 
 make init
-`
+```
 
 ### 修改配置文件
 ```yml
