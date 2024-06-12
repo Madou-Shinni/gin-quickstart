@@ -40,8 +40,9 @@ func (r *RdbCache) Del(key string) error {
 }
 
 func (r *RdbCache) DelByPrefix(pre string) error {
-	for _, s := range r.rdb.Keys(pre + "*").Val() {
-		if err := r.rdb.Del(s).Err(); err != nil {
+	iter := r.rdb.Scan(0, pre+"*", 0).Iterator()
+	for iter.Next() {
+		if err := r.rdb.Del(iter.Val()).Err(); err != nil {
 			return err
 		}
 	}
