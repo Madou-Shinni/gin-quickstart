@@ -2,6 +2,8 @@ package initialization
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/Madou-Shinni/gin-quickstart/api/routers"
 	_ "github.com/Madou-Shinni/gin-quickstart/docs"
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
@@ -17,6 +19,7 @@ import (
 // 启动服务
 func RunServer() {
 	// 初始化引擎
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(middleware.GinLogger(), middleware.GinRecovery(true))
 
@@ -37,7 +40,7 @@ func RunServer() {
 	routers.DemoRouterRegister(public)
 	routers.FileRouterRegister(r)
 
-	fmt.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
+	log.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
 
 	r.Run(fmt.Sprintf("0.0.0.0:%v", conf.Conf.ServerPort))
 }
