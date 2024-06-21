@@ -17,7 +17,7 @@ type LocalDate struct {
 }
 
 type Model struct {
-	ID        uint           `gorm:"primarykey" json:"id" form:"id"`                  // 主键
+	ID        uint           `gorm:"primarykey" json:"id" form:"id" uri:"id"`         // 主键
 	CreatedAt *LocalTime     `json:"createdAt" form:"createdAt" swaggerignore:"true"` // 创建时间
 	UpdatedAt *LocalTime     `json:"updatedAt" form:"updatedAt" swaggerignore:"true"` // 修改时间
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" form:"deletedAt" swaggerignore:"true"`

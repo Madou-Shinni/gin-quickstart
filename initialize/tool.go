@@ -1,4 +1,4 @@
-package initialization
+package initialize
 
 import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"

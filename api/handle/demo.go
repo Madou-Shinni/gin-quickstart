@@ -114,12 +114,12 @@ func (cl *DemoHandle) Update(c *gin.Context) {
 // @Summary  查询Demo
 // @accept   application/json
 // @Produce  application/json
-// @Param    data query     domain.Demo true "查询Demo"
+// @Param    id path     uint true "查询Demo"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
-// @Router   /demo [get]
+// @Router   /demo/{id} [get]
 func (cl *DemoHandle) Find(c *gin.Context) {
 	var demo domain.Demo
-	if err := c.ShouldBindQuery(&demo); err != nil {
+	if err := c.ShouldBindUri(&demo); err != nil {
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}

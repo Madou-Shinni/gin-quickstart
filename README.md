@@ -8,7 +8,7 @@
 ├─cmd // 程序主入口
 ├─configs // 配置文件
 ├─docs // 生成的接口文档
-├─initialization // 初始化配置信息
+├─initialize // 初始化配置信息
 ├─internal // 该服务所有不对外暴露的代码，通常的业务逻辑都在这下面，使用internal避免错误引用
 │  ├─conf // 内部使用的config的结构定义，将文件配置反序列化到结构体
 │  ├─data // 业务数据访问 持久层
@@ -32,7 +32,7 @@
 ```bash
 git clone https://github.com/Madou-Shinni/gin-quickstart.git
 
-make init
+make initialize
 ```
 
 ### 修改配置文件
