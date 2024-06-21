@@ -5,10 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var demoHandle = handle.NewDemoHandle()
+
 // 注册路由
 func DemoRouterRegister(r *gin.RouterGroup) {
 	demoGroup := r.Group("demo")
-	demoHandle := handle.NewDemoHandle()
 	{
 		demoGroup.POST("", demoHandle.Add)
 		demoGroup.DELETE("", demoHandle.Delete)

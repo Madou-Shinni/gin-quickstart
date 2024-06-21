@@ -5,9 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var fileHandle = handle.NewFileHandle()
+
 func FileRouterRegister(r *gin.Engine) {
 	fileGroup := r.Group("file")
-	fileHandle := handle.NewFileHandle()
 	{
 		fileGroup.POST("", fileHandle.Add)
 		fileGroup.POST("/upload-chunk", fileHandle.UploadChunk)
