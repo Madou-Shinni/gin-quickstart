@@ -1,6 +1,7 @@
 package initialization
 
 import (
+	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/go-logger"
 	"time"
@@ -11,7 +12,7 @@ func init() {
 	var err error
 
 	env := conf.Conf.Env
-	file := "./logs/" + time.Now().Format(time.DateOnly) + ".log"
+	file := fmt.Sprint("./logs/", conf.Conf.LogFile, ".log")
 
 	if env == "prod" {
 		// 生产环境

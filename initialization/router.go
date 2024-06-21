@@ -19,7 +19,11 @@ import (
 // 启动服务
 func RunServer() {
 	// 初始化引擎
-	gin.SetMode(gin.ReleaseMode)
+	if conf.Conf.Env == "dev" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	r := gin.New()
 	r.Use(middleware.GinLogger(), middleware.GinRecovery(true))
 

@@ -14,6 +14,7 @@ type App struct {
 	Env        string `mapstructure:"env"`
 	MachineID  int64  `mapstructure:"machineID"`
 	ServerPort int    `mapstructure:"server-port"`
+	LogFile    string `mapstructure:"log-file"`
 }
 
 // mysql配置

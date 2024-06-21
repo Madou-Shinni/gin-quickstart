@@ -47,9 +47,10 @@ func (s *{{.Module}}Repo) Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.M
 	return {{.ModuleLower}}, res.Error
 }
 
-func (s *{{.Module}}Repo) List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, error) {
+func (s *{{.Module}}Repo) List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, int64, error) {
 	var (
 		{{.ModuleLower}}List []domain.{{.Module}}
+		count int64
 		err      error
 	)
 	// db
@@ -59,22 +60,7 @@ func (s *{{.Module}}Repo) List(page domain.Page{{.Module}}Search) ([]domain.{{.M
 
 	// TODO：条件过滤
 
-	err = db.Offset(offset).Limit(limit).Find(&{{.ModuleLower}}List).Error
+	err = db.Count(&count).Offset(offset).Limit(limit).Find(&{{.ModuleLower}}List).Error
 
-	return {{.ModuleLower}}List, err
-}
-
-func (s *{{.Module}}Repo) Count(page domain.Page{{.Module}}Search) (int64, error) {
-	var (
-		count int64
-		err   error
-	)
-
-	db := global.DB.Model(&domain.{{.Module}}{})
-
-	// TODO：条件过滤
-
-	err = db.Model(&domain.{{.Module}}{}).Count(&count).Error
-
-	return count, err
+	return {{.ModuleLower}}List, count, err
 }

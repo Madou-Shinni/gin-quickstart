@@ -15,7 +15,7 @@ func FileRouterRegister(r *gin.Engine) {
 		fileGroup.GET("/merge-chunk", fileHandle.MergeChunk)
 		fileGroup.DELETE("", fileHandle.Delete)
 		fileGroup.DELETE("/delete-batch", fileHandle.DeleteByIds)
-		fileGroup.GET("", fileHandle.Find)
+		fileGroup.GET("/:id", fileHandle.Find)
 		fileGroup.GET("/list", fileHandle.List)
 		fileGroup.PUT("", fileHandle.Update)
 	}

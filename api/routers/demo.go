@@ -13,7 +13,7 @@ func DemoRouterRegister(r *gin.RouterGroup) {
 		demoGroup.POST("", demoHandle.Add)
 		demoGroup.DELETE("", demoHandle.Delete)
 		demoGroup.DELETE("/delete-batch", demoHandle.DeleteByIds)
-		demoGroup.GET("", demoHandle.Find)
+		demoGroup.GET("/:id", demoHandle.Find)
 		demoGroup.GET("/list", demoHandle.List)
 		demoGroup.PUT("", demoHandle.Update)
 	}

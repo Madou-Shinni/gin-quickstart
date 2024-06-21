@@ -26,8 +26,7 @@ type FileRepo interface {
 	Delete(file domain.File) error
 	Update(file map[string]interface{}) error
 	Find(file domain.File) (domain.File, error)
-	List(page domain.PageFileSearch) ([]domain.File, error)
-	Count() (int64, error)
+	List(page domain.PageFileSearch) ([]domain.File, int64, error)
 	DeleteByIds(ids request.Ids) error
 }
 
@@ -91,15 +90,9 @@ func (s *FileService) List(page domain.PageFileSearch) (response.PageResponse, e
 		pageRes response.PageResponse
 	)
 
-	data, err := s.repo.List(page)
+	data, count, err := s.repo.List(page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageFileSearch", page))
-		return pageRes, err
-	}
-
-	count, err := s.repo.Count()
-	if err != nil {
-		logger.Error("s.repo.Count()", zap.Error(err))
 		return pageRes, err
 	}
 

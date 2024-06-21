@@ -1,9 +1,11 @@
 app:
   # 环境：dev or prod
-  env: dev
+  env: prod
   # 分布式节点(用于生成分布式id应保证各个机器节点不一致)
   machineID: 1
   server-port: 8080
+  # 日志文件 ./logs/gin-quickstart.log
+  # log-file: gin-quickstart
 # 数据库
 mysql:
   host: "127.0.0.1"

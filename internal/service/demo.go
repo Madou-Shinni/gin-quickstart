@@ -15,8 +15,7 @@ type DemoRepo interface {
 	Delete(demo domain.Demo) error
 	Update(demo map[string]interface{}) error
 	Find(demo domain.Demo) (domain.Demo, error)
-	List(page domain.PageDemoSearch) ([]domain.Demo, error)
-	Count() (int64, error)
+	List(page domain.PageDemoSearch) ([]domain.Demo, int64, error)
 	DeleteByIds(ids request.Ids) error
 }
 
@@ -73,15 +72,9 @@ func (s *DemoService) List(page domain.PageDemoSearch) (response.PageResponse, e
 		pageRes response.PageResponse
 	)
 
-	data, err := s.repo.List(page)
+	data, count, err := s.repo.List(page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageDemoSearch", page))
-		return pageRes, err
-	}
-
-	count, err := s.repo.Count()
-	if err != nil {
-		logger.Error("s.repo.Count()", zap.Error(err))
 		return pageRes, err
 	}
 

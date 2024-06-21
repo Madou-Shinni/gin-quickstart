@@ -49,9 +49,10 @@ func (s *FileRepo) Find(file domain.File) (domain.File, error) {
 	return file, res.Error
 }
 
-func (s *FileRepo) List(page domain.PageFileSearch) ([]domain.File, error) {
+func (s *FileRepo) List(page domain.PageFileSearch) ([]domain.File, int64, error) {
 	var (
 		fileList []domain.File
+		count    int64
 		err      error
 	)
 	// db
@@ -59,18 +60,7 @@ func (s *FileRepo) List(page domain.PageFileSearch) ([]domain.File, error) {
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 
-	err = db.Offset(offset).Limit(limit).Find(&fileList).Error
+	err = db.Count(&count).Offset(offset).Limit(limit).Find(&fileList).Error
 
-	return fileList, err
-}
-
-func (s *FileRepo) Count() (int64, error) {
-	var (
-		count int64
-		err   error
-	)
-
-	err = global.DB.Model(&domain.File{}).Count(&count).Error
-
-	return count, err
+	return fileList, count, err
 }
