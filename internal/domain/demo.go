@@ -7,7 +7,8 @@ import (
 
 type Demo struct {
 	model.Model
-	F *string
+	F string `json:"f" binding:"required"`
+	N string `json:"n" binding:"required"`
 }
 
 type PageDemoSearch struct {

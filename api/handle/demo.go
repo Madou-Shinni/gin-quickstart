@@ -1,12 +1,15 @@
 package handle
 
 import (
+	"errors"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/tools"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type DemoHandle struct {
@@ -28,6 +31,11 @@ func NewDemoHandle() *DemoHandle {
 func (cl *DemoHandle) Add(c *gin.Context) {
 	var demo domain.Demo
 	if err := c.ShouldBindJSON(&demo); err != nil {
+		var errs validator.ValidationErrors
+		if errors.As(err, &errs) {
+			response.Error(c, constant.CODE_INVALID_PARAMETER, tools.TransErrs(errs))
+			return
+		}
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
