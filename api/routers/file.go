@@ -12,6 +12,7 @@ func FileRouterRegister(r *gin.Engine) {
 	{
 		fileGroup.POST("", fileHandle.Add)
 		fileGroup.POST("/upload-chunk", fileHandle.UploadChunk)
+		fileGroup.POST("/upload", fileHandle.Upload)
 		fileGroup.GET("/chunkid", fileHandle.Chunkid)
 		fileGroup.GET("/merge-chunk", fileHandle.MergeChunk)
 		fileGroup.DELETE("", fileHandle.Delete)

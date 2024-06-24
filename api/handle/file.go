@@ -1,13 +1,19 @@
 package handle
 
 import (
+	"fmt"
+	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/snowflake"
+	"github.com/Madou-Shinni/go-logger"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+	"os"
 )
 
 type FileHandle struct {
@@ -68,6 +74,37 @@ func (cl *FileHandle) MergeChunk(c *gin.Context) {
 	response.Success(c, file)
 }
 
+// Upload 普通上传File
+// @Tags     File
+// @Summary  普通上传File
+// @accept   multipart/form-data
+// @Produce  application/json
+// @Param    file formData     file true "普通上传File"
+// @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
+// @Router   /file/upload [post]
+func (cl *FileHandle) Upload(c *gin.Context) {
+	var (
+		err      error
+		filePath string
+	)
+
+	form, _ := c.MultipartForm()
+	fileHeaders := form.File["file"]
+
+	for _, fileHeader := range fileHeaders {
+		filePath = fmt.Sprint(conf.Conf.UploadConfig.Dir, "/", uuid.NewString())
+		os.MkdirAll(conf.Conf.UploadConfig.Dir, os.ModePerm)
+		err = c.SaveUploadedFile(fileHeader, filePath)
+		if err != nil {
+			logger.Error("SaveUploadedFile", zap.Error(err))
+			response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
+			return
+		}
+	}
+
+	response.Success(c, filePath)
+}
+
 // UploadChunk 分片上传File
 // @Tags     File
 // @Summary  分片上传File
@@ -106,7 +143,6 @@ func (cl *FileHandle) UploadChunk(c *gin.Context) {
 // @Summary  获取分块文件id
 // @accept   application/json
 // @Produce  application/json
-// @Param    data query     domain.File true "获取分块文件id"
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /file/chunkid [get]
 func (cl *FileHandle) Chunkid(c *gin.Context) {
@@ -193,7 +229,7 @@ func (cl *FileHandle) Update(c *gin.Context) {
 // @Summary  查询File
 // @accept   application/json
 // @Produce  application/json
-// @Param    data query     domain.File true "查询File"
+// @Param    fileMd5 query     string true "查询File"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
 // @Router   /file [get]
 func (cl *FileHandle) Find(c *gin.Context) {

@@ -3,10 +3,11 @@ package conf
 var Conf = new(ProfileInfo)
 
 type ProfileInfo struct {
-	*App         `mapstructure:"app"`
-	*MysqlConfig `mapstructure:"mysql"`
-	*RedisConfig `mapstructure:"redis"`
-	*JwtConfig   `mapstructure:"jwt"`
+	*App          `mapstructure:"app"`
+	*MysqlConfig  `mapstructure:"mysql"`
+	*RedisConfig  `mapstructure:"redis"`
+	*JwtConfig    `mapstructure:"jwt"`
+	*UploadConfig `mapstructure:"upload"`
 }
 
 // 系统配置
@@ -41,4 +42,9 @@ type JwtConfig struct {
 	RefreshExpire int64  `mapstructure:"refresh-expire"`
 	Issuer        string `mapstructure:"issuer"`
 	Secret        string `mapstructure:"secret"`
+}
+
+// UploadConfig 文件上传配置
+type UploadConfig struct {
+	Dir string `mapstructure:"dir"`
 }
