@@ -31,3 +31,6 @@ jwt:
   issuer: sni
   # 密钥
   secret: yoursecret
+# 文件上传目录
+upload:
+  dir: ./uploads

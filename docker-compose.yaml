@@ -1,0 +1,11 @@
+version: '3.5'
+
+services:
+  server:
+
+    container_name: gin-quickstart
+    image: gin-quickstart:v1.4.3
+    volumes:
+      - ./logs:/app/logs
+      - ./configs:/app/configs
+      - ./uploads:/app/uploads

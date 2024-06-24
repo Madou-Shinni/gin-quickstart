@@ -78,6 +78,7 @@ func ConfigInit() {
 		if err := viper.Unmarshal(conf.Conf); err != nil {
 			log.Printf("viper.Unmarshal failed,err:%v\n", err)
 		}
+		log.Println("Config file changed")
 	})
 }
 
