@@ -22,3 +22,5 @@
 
 configs/config_dev.yml
 bin
+logs
+uploads
