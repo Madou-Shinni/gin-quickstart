@@ -21,3 +21,4 @@
 # vendor/
 
 configs/config_dev.yml
+bin
