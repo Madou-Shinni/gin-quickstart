@@ -1,6 +1,6 @@
 app:
   # 环境：dev or prod
-  env: prod
+  env: dev
   # 分布式节点(用于生成分布式id应保证各个机器节点不一致)
   machineID: 1
   server-port: 8080
