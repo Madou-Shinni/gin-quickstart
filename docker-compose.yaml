@@ -4,6 +4,8 @@ services:
   server:
     container_name: gin-quickstart
     image: gin-quickstart:v1.4.5
+    environment:
+      TZ: Asia/Shanghai
     volumes:
       - ./logs:/app/logs
       - ./configs:/app/configs
