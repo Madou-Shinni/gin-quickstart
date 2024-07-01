@@ -17,3 +17,13 @@ func GetUserIdFromCtx(c *gin.Context) (uint, error) {
 
 	return u.(uint), nil
 }
+
+// GetRoleIdFromCtx 从上下文中获取用户角色
+func GetRoleIdFromCtx(c *gin.Context) (uint, error) {
+	u, ok := c.Get(constants.CtxRoleIdkEY)
+	if !ok {
+		return 0, ErrorUserNotLogin
+	}
+
+	return u.(uint), nil
+}

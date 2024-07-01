@@ -14,7 +14,7 @@ const (
 
 // 错误码
 const (
-	CODE_NO_PERMISSIONS    RspCode = 403         // 无权限
+	CODE_NO_PERMISSIONS    RspCode = 302         // 无权限
 	CODE_ERR_MSG           RspCode = 1000 + iota // 消息处理失败
 	CODE_ERR_BUSY                                // 系统繁忙
 	CODE_INVALID_PARAMETER                       // 无效的参数

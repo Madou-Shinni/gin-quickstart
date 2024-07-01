@@ -16,7 +16,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// 启动服务
+// RunServer 启动服务
 func RunServer() {
 	// 初始化引擎
 	if conf.Conf.Env == "dev" {
@@ -38,11 +38,16 @@ func RunServer() {
 
 	// 设置路由组
 	public := r.Group("")
-	//private := r.Group("private")
+	private := r.Group("", middleware.JwtAuth(), middleware.CasbinHandler())
 
 	// 注册路由
 	routers.DemoRouterRegister(public)
 	routers.FileRouterRegister(r)
+	routers.SystemRouterRegister(public)
+	routers.SysUserRouterRegister(public)
+	routers.SysRoleRouterRegister(public)
+	routers.SysCasbinRouterRegister(public)
+	routers.SysApiRouterRegister(private)
 
 	log.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
 

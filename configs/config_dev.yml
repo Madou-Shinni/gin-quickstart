@@ -28,6 +28,6 @@ jwt:
   # 签名
   issuer: sni
   # 密钥
-  secret: yoursecret
+  secret: 7bdfc027-ef5f-67f3-af9f-311bcec930d5
 upload:
   dir: ./uploads

@@ -22,6 +22,7 @@ func JwtAuth() gin.HandlerFunc {
 		}
 		// 解析token
 		userId, err := tools.GetUserIdFromJwt(token, conf.Conf.JwtConfig.Secret)
+		roleId, err := tools.GetRoleIdFromJwt(token, conf.Conf.JwtConfig.Secret)
 		if err != nil {
 			response.Error(c, constant.CODE_NO_PERMISSIONS, err.Error())
 			c.Abort()
@@ -30,6 +31,7 @@ func JwtAuth() gin.HandlerFunc {
 
 		// 将解析的userId保存到上下文中
 		c.Set(constants.CtxUserIdKey, userId)
+		c.Set(constants.CtxRoleIdkEY, roleId)
 		c.Next()
 	}
 }

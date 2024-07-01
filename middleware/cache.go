@@ -9,6 +9,7 @@ import (
 	"github.com/Madou-Shinni/go-logger"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"net/http"
 	"time"
 )
 
@@ -31,6 +32,10 @@ func Cache(ca cache.Cache) gin.HandlerFunc {
 				// 获取接口返回值，设置缓存
 				resp := response.Response{}
 				json.Unmarshal([]byte(respWrite.body.String()), &resp)
+				if resp.Code != http.StatusOK {
+					// 不设置缓存
+					return
+				}
 				err = ca.Set(key, resp.Data, cacheExpire)
 				if err != nil {
 					logger.Error("cache err", zap.Error(err))

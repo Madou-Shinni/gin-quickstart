@@ -8,6 +8,7 @@ import (
 
 const (
 	UserIdKey = "userId"
+	RoleIdKey = "roleId"
 	ExpKey    = "exp" // 过期时间key
 )
 
@@ -43,5 +44,40 @@ func GetUserIdFromJwt(tokenStr string, signed string) (uint, error) {
 			return 0, ErrorUserInfo
 		}
 		return uint(userId), nil
+	}
+}
+
+// GetRoleIdFromJwt 解析token
+func GetRoleIdFromJwt(tokenStr string, signed string) (uint, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(signed), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
+		return 0, jwt.ErrTokenInvalidClaims
+	} else {
+		roleIdStr := claims[RoleIdKey].(string)
+		roleId, err := strconv.ParseUint(roleIdStr, 10, 64)
+		if err != nil {
+			return 0, ErrorUserInfo
+		}
+		return uint(roleId), nil
+	}
+}
+
+// GetClaimsFromJwt 解析token
+func GetClaimsFromJwt(tokenStr string, signed string) (jwt.MapClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(signed), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if claims, ok := token.Claims.(jwt.MapClaims); !ok && !token.Valid {
+		return nil, jwt.ErrTokenInvalidClaims
+	} else {
+		return claims, nil
 	}
 }

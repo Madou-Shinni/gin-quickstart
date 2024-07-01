@@ -2,9 +2,9 @@ package main
 
 // 使用 _引入依赖项在main函数执行会直接调用init函数
 import (
-	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/initialize"
 	"github.com/Madou-Shinni/go-logger"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,13 +18,6 @@ import (
 //go:generate swag initialize --parseDependency --parseInternal --parseDepth 3 --output ../docs
 //go:generate swag initialize --output ../docs
 
-// @title                      Swagger Example API
-// @version                    0.0.1
-// @description                This is a sample Server pets
-// @securityDefinitions.apikey ApiKeyAuth
-// @in                         header
-// @name                       token
-// @BasePath                   /
 func main() {
 	// 启动服务(使用goroutine解决服务启动时程序阻塞问题)
 	go initialize.RunServer()
@@ -38,7 +31,7 @@ func main() {
 		// 释放资源
 		logger.Sync()
 		initialize.Close()
-		fmt.Println("[GIN-QuickStart] 程序关闭，释放资源")
+		log.Println("[GIN-QuickStart] 程序关闭，释放资源")
 		return
 	}
 }
