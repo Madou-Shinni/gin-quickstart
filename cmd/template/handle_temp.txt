@@ -25,6 +25,7 @@ func New{{.Module}}Handle() *{{.Module}}Handle {
 // @Summary  创建{{.Module}}
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    data body     domain.{{.Module}} true "创建{{.Module}}"
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /{{.ModuleLower}} [post]
@@ -53,6 +54,7 @@ func (cl *{{.Module}}Handle) Add(c *gin.Context) {
 // @Summary  删除{{.Module}}
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    data body     domain.{{.Module}} true "删除{{.Module}}"
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /{{.ModuleLower}} [delete]
@@ -76,6 +78,7 @@ func (cl *{{.Module}}Handle) Delete(c *gin.Context) {
 // @Summary  批量删除{{.Module}}
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    data body     request.Ids true "批量删除{{.Module}}"
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /{{.ModuleLower}}/delete-batch [delete]
@@ -99,6 +102,7 @@ func (cl *{{.Module}}Handle) DeleteByIds(c *gin.Context) {
 // @Summary  修改{{.Module}}
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    data body     domain.{{.Module}} true "修改{{.Module}}"
 // @Success  200  {string} string            "{"code":200,"msg":"","data":{}"}"
 // @Router   /{{.ModuleLower}} [put]
@@ -122,6 +126,7 @@ func (cl *{{.Module}}Handle) Update(c *gin.Context) {
 // @Summary  查询{{.Module}}
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    id path     uint true "查询{{.Module}}"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
 // @Router   /{{.ModuleLower}}/{id} [get]
@@ -147,6 +152,7 @@ func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 // @Summary  查询{{.Module}}列表
 // @accept   application/json
 // @Produce  application/json
+// @Security ApiKeyAuth
 // @Param    data query     domain.Page{{.Module}}Search true "查询{{.Module}}列表"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
 // @Router   /{{.ModuleLower}}/list [get]
