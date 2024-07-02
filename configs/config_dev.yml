@@ -30,4 +30,4 @@ jwt:
   # 密钥
   secret: 7bdfc027-ef5f-67f3-af9f-311bcec930d5
 upload:
-  dir: ./uploads
+  dir: uploads

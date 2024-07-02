@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"os"
+	"path/filepath"
 )
 
 type FileHandle struct {
@@ -92,7 +93,8 @@ func (cl *FileHandle) Upload(c *gin.Context) {
 	fileHeaders := form.File["file"]
 
 	for _, fileHeader := range fileHeaders {
-		filePath = fmt.Sprint(conf.Conf.UploadConfig.Dir, "/", uuid.NewString())
+		suffix := filepath.Ext(fileHeader.Filename)
+		filePath = fmt.Sprint(conf.Conf.UploadConfig.Dir, "/", uuid.NewString(), suffix)
 		os.MkdirAll(conf.Conf.UploadConfig.Dir, os.ModePerm)
 		err = c.SaveUploadedFile(fileHeader, filePath)
 		if err != nil {
