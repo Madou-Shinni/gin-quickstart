@@ -32,7 +32,14 @@
 ```bash
 git clone https://github.com/Madou-Shinni/gin-quickstart.git
 
-make initialize
+# 初始化
+make init
+
+# 依赖整理
+go mod tidy
+
+# 运行（默认读取configs目录下的所有yaml配置文件）
+go run cmd/main.go [-c] [configPath]
 ```
 
 ### 修改配置文件
@@ -98,5 +105,5 @@ swag init
 
 ### 日志组件
 
-我们对zap日志进行了封装处理，以便于更简单的使用日志，如果你想自定义日志的使用可以修改`initialization/logger.go`文件中日志的初始化配置
+我们对zap日志进行了封装处理，以便于更简单的使用日志，如果你想自定义日志的使用可以修改`initialize/logger.go`文件中日志的初始化配置
 
