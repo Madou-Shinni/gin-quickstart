@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -17,12 +18,12 @@ var (
 
 // 定义接口
 type SysUserRepo interface {
-	Create(sysUser domain.SysUser) error
-	Delete(sysUser domain.SysUser) error
-	Update(sysUser map[string]interface{}) error
-	Find(sysUser domain.SysUser) (domain.SysUser, error)
-	List(page domain.PageSysUserSearch) ([]domain.SysUser, int64, error)
-	DeleteByIds(ids request.Ids) error
+	Create(ctx context.Context, sysUser domain.SysUser) error
+	Delete(ctx context.Context, sysUser domain.SysUser) error
+	Update(ctx context.Context, sysUser map[string]interface{}) error
+	Find(ctx context.Context, sysUser domain.SysUser) (domain.SysUser, error)
+	List(ctx context.Context, page domain.PageSysUserSearch) ([]domain.SysUser, int64, error)
+	DeleteByIds(ctx context.Context, ids request.Ids) error
 }
 
 type SysUserService struct {
@@ -33,7 +34,7 @@ func NewSysUserService() *SysUserService {
 	return &SysUserService{repo: &data.SysUserRepo{}}
 }
 
-func (s *SysUserService) Add(sysUser domain.SysUser) error {
+func (s *SysUserService) Add(ctx context.Context, sysUser domain.SysUser) error {
 	// 3.持久化入库
 	db := global.DB.Model(&domain.SysUser{})
 	err := db.Where("account = ?", sysUser.Account).First(&domain.SysUser{}).Error
@@ -41,7 +42,7 @@ func (s *SysUserService) Add(sysUser domain.SysUser) error {
 		return ErrorUserExist
 	}
 
-	if err := s.repo.Create(sysUser); err != nil {
+	if err := s.repo.Create(ctx, sysUser); err != nil {
 		// 4.记录日志
 		logger.Error("s.repo.Create(sysUser)", zap.Error(err), zap.Any("domain.SysUser", sysUser))
 		return err
@@ -50,8 +51,8 @@ func (s *SysUserService) Add(sysUser domain.SysUser) error {
 	return nil
 }
 
-func (s *SysUserService) Delete(sysUser domain.SysUser) error {
-	if err := s.repo.Delete(sysUser); err != nil {
+func (s *SysUserService) Delete(ctx context.Context, sysUser domain.SysUser) error {
+	if err := s.repo.Delete(ctx, sysUser); err != nil {
 		logger.Error("s.repo.Delete(sysUser)", zap.Error(err), zap.Any("domain.SysUser", sysUser))
 		return err
 	}
@@ -59,8 +60,8 @@ func (s *SysUserService) Delete(sysUser domain.SysUser) error {
 	return nil
 }
 
-func (s *SysUserService) Update(sysUser map[string]interface{}) error {
-	if err := s.repo.Update(sysUser); err != nil {
+func (s *SysUserService) Update(ctx context.Context, sysUser map[string]interface{}) error {
+	if err := s.repo.Update(ctx, sysUser); err != nil {
 		logger.Error("s.repo.Update(sysUser)", zap.Error(err), zap.Any("domain.SysUser", sysUser))
 		return err
 	}
@@ -68,8 +69,8 @@ func (s *SysUserService) Update(sysUser map[string]interface{}) error {
 	return nil
 }
 
-func (s *SysUserService) Find(sysUser domain.SysUser) (domain.SysUser, error) {
-	res, err := s.repo.Find(sysUser)
+func (s *SysUserService) Find(ctx context.Context, sysUser domain.SysUser) (domain.SysUser, error) {
+	res, err := s.repo.Find(ctx, sysUser)
 
 	if err != nil {
 		logger.Error("s.repo.Find(sysUser)", zap.Error(err), zap.Any("domain.SysUser", sysUser))
@@ -79,12 +80,12 @@ func (s *SysUserService) Find(sysUser domain.SysUser) (domain.SysUser, error) {
 	return res, nil
 }
 
-func (s *SysUserService) List(page domain.PageSysUserSearch) (response.PageResponse, error) {
+func (s *SysUserService) List(ctx context.Context, page domain.PageSysUserSearch) (response.PageResponse, error) {
 	var (
 		pageRes response.PageResponse
 	)
 
-	data, count, err := s.repo.List(page)
+	data, count, err := s.repo.List(ctx, page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageSysUserSearch", page))
 		return pageRes, err
@@ -96,8 +97,8 @@ func (s *SysUserService) List(page domain.PageSysUserSearch) (response.PageRespo
 	return pageRes, nil
 }
 
-func (s *SysUserService) DeleteByIds(ids request.Ids) error {
-	if err := s.repo.DeleteByIds(ids); err != nil {
+func (s *SysUserService) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	if err := s.repo.DeleteByIds(ctx, ids); err != nil {
 		logger.Error("s.DeleteByIds(ids)", zap.Error(err), zap.Any("ids request.Ids", ids))
 		return err
 	}

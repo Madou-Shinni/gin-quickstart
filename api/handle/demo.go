@@ -40,7 +40,7 @@ func (cl *DemoHandle) Add(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Add(demo); err != nil {
+	if err := cl.s.Add(c.Request.Context(), demo); err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -63,7 +63,7 @@ func (cl *DemoHandle) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Delete(demo); err != nil {
+	if err := cl.s.Delete(c.Request.Context(), demo); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -86,7 +86,7 @@ func (cl *DemoHandle) DeleteByIds(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.DeleteByIds(ids); err != nil {
+	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -109,7 +109,7 @@ func (cl *DemoHandle) Update(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Update(demo); err != nil {
+	if err := cl.s.Update(c.Request.Context(), demo); err != nil {
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -132,7 +132,7 @@ func (cl *DemoHandle) Find(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.Find(demo)
+	res, err := cl.s.Find(c.Request.Context(), demo)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
@@ -157,7 +157,7 @@ func (cl *DemoHandle) List(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.List(demo)
+	res, err := cl.s.List(c.Request.Context(), demo)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())

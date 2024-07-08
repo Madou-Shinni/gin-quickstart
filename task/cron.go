@@ -1,4 +1,4 @@
-package jobs
+package task
 
 import (
 	"github.com/robfig/cron/v3"

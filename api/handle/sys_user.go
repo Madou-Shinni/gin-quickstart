@@ -41,7 +41,7 @@ func (cl *SysUserHandle) Add(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Add(sysUser); err != nil {
+	if err := cl.s.Add(c.Request.Context(), sysUser); err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED, err.Error())
 		return
 	}
@@ -65,7 +65,7 @@ func (cl *SysUserHandle) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Delete(sysUser); err != nil {
+	if err := cl.s.Delete(c.Request.Context(), sysUser); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -89,7 +89,7 @@ func (cl *SysUserHandle) DeleteByIds(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.DeleteByIds(ids); err != nil {
+	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -113,7 +113,7 @@ func (cl *SysUserHandle) Update(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Update(sysUser); err != nil {
+	if err := cl.s.Update(c.Request.Context(), sysUser); err != nil {
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -137,7 +137,7 @@ func (cl *SysUserHandle) Find(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.Find(sysUser)
+	res, err := cl.s.Find(c.Request.Context(), sysUser)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
@@ -163,7 +163,7 @@ func (cl *SysUserHandle) List(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.List(sysUser)
+	res, err := cl.s.List(c.Request.Context(), sysUser)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())

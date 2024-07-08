@@ -40,7 +40,7 @@ func (cl *FileHandle) Add(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Add(file); err != nil {
+	if err := cl.s.Add(c.Request.Context(), file); err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -67,7 +67,7 @@ func (cl *FileHandle) MergeChunk(c *gin.Context) {
 		return
 	}
 
-	if file, err = cl.s.MergeChunk(file); err != nil {
+	if file, err = cl.s.MergeChunk(c.Request.Context(), file); err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -130,7 +130,7 @@ func (cl *FileHandle) UploadChunk(c *gin.Context) {
 	}
 
 	for _, fileHeader := range fileHeaders {
-		file, err = cl.s.UploadChunk(file, fileHeader)
+		file, err = cl.s.UploadChunk(c.Request.Context(), file, fileHeader)
 		if err != nil {
 			response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 			return
@@ -172,7 +172,7 @@ func (cl *FileHandle) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Delete(file); err != nil {
+	if err := cl.s.Delete(c.Request.Context(), file); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -195,7 +195,7 @@ func (cl *FileHandle) DeleteByIds(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.DeleteByIds(ids); err != nil {
+	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -218,7 +218,7 @@ func (cl *FileHandle) Update(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Update(file); err != nil {
+	if err := cl.s.Update(c.Request.Context(), file); err != nil {
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -241,7 +241,7 @@ func (cl *FileHandle) Find(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.Find(file)
+	res, err := cl.s.Find(c.Request.Context(), file)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
@@ -266,7 +266,7 @@ func (cl *FileHandle) List(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.List(file)
+	res, err := cl.s.List(c.Request.Context(), file)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())

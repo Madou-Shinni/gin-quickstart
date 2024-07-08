@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -12,19 +13,19 @@ import (
 type SysUserRepo struct {
 }
 
-func (s *SysUserRepo) Create(sysUser domain.SysUser) error {
-	return global.DB.Create(&sysUser).Error
+func (s *SysUserRepo) Create(ctx context.Context, sysUser domain.SysUser) error {
+	return global.DB.WithContext(ctx).Create(&sysUser).Error
 }
 
-func (s *SysUserRepo) Delete(sysUser domain.SysUser) error {
-	return global.DB.Delete(&sysUser).Error
+func (s *SysUserRepo) Delete(ctx context.Context, sysUser domain.SysUser) error {
+	return global.DB.WithContext(ctx).Delete(&sysUser).Error
 }
 
-func (s *SysUserRepo) DeleteByIds(ids request.Ids) error {
-	return global.DB.Delete(&[]domain.SysUser{}, ids.Ids).Error
+func (s *SysUserRepo) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	return global.DB.WithContext(ctx).Delete(&[]domain.SysUser{}, ids.Ids).Error
 }
 
-func (s *SysUserRepo) Update(sysUser map[string]interface{}) error {
+func (s *SysUserRepo) Update(ctx context.Context, sysUser map[string]interface{}) error {
 	var columns []string
 	for key := range sysUser {
 		columns = append(columns, key)
@@ -35,11 +36,11 @@ func (s *SysUserRepo) Update(sysUser map[string]interface{}) error {
 	}
 	model := domain.SysUser{}
 	model.ID = uint(sysUser["id"].(float64))
-	return global.DB.Model(&model).Select(columns).Updates(&sysUser).Error
+	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&sysUser).Error
 }
 
-func (s *SysUserRepo) Find(sysUser domain.SysUser) (domain.SysUser, error) {
-	db := global.DB.Model(&domain.SysUser{})
+func (s *SysUserRepo) Find(ctx context.Context, sysUser domain.SysUser) (domain.SysUser, error) {
+	db := global.DB.WithContext(ctx).Model(&domain.SysUser{})
 	// TODO：条件过滤
 
 	res := db.First(&sysUser)
@@ -47,14 +48,14 @@ func (s *SysUserRepo) Find(sysUser domain.SysUser) (domain.SysUser, error) {
 	return sysUser, res.Error
 }
 
-func (s *SysUserRepo) List(page domain.PageSysUserSearch) ([]domain.SysUser, int64, error) {
+func (s *SysUserRepo) List(ctx context.Context, page domain.PageSysUserSearch) ([]domain.SysUser, int64, error) {
 	var (
 		sysUserList []domain.SysUser
 		count       int64
 		err         error
 	)
 	// db
-	db := global.DB.Model(&domain.SysUser{})
+	db := global.DB.WithContext(ctx).Model(&domain.SysUser{})
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 

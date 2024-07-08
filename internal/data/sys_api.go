@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -12,19 +13,19 @@ import (
 type SysApiRepo struct {
 }
 
-func (s *SysApiRepo) Create(sysApi domain.SysApi) error {
-	return global.DB.Create(&sysApi).Error
+func (s *SysApiRepo) Create(ctx context.Context, sysApi domain.SysApi) error {
+	return global.DB.WithContext(ctx).Create(&sysApi).Error
 }
 
-func (s *SysApiRepo) Delete(sysApi domain.SysApi) error {
-	return global.DB.Delete(&sysApi).Error
+func (s *SysApiRepo) Delete(ctx context.Context, sysApi domain.SysApi) error {
+	return global.DB.WithContext(ctx).Delete(&sysApi).Error
 }
 
-func (s *SysApiRepo) DeleteByIds(ids request.Ids) error {
-	return global.DB.Delete(&[]domain.SysApi{}, ids.Ids).Error
+func (s *SysApiRepo) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	return global.DB.WithContext(ctx).Delete(&[]domain.SysApi{}, ids.Ids).Error
 }
 
-func (s *SysApiRepo) Update(sysApi map[string]interface{}) error {
+func (s *SysApiRepo) Update(ctx context.Context, sysApi map[string]interface{}) error {
 	var columns []string
 	for key := range sysApi {
 		columns = append(columns, key)
@@ -35,11 +36,11 @@ func (s *SysApiRepo) Update(sysApi map[string]interface{}) error {
 	}
 	model := domain.SysApi{}
 	model.ID = uint(sysApi["id"].(float64))
-	return global.DB.Model(&model).Select(columns).Updates(&sysApi).Error
+	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&sysApi).Error
 }
 
-func (s *SysApiRepo) Find(sysApi domain.SysApi) (domain.SysApi, error) {
-	db := global.DB.Model(&domain.SysApi{})
+func (s *SysApiRepo) Find(ctx context.Context, sysApi domain.SysApi) (domain.SysApi, error) {
+	db := global.DB.WithContext(ctx).Model(&domain.SysApi{})
 	// TODO：条件过滤
 
 	res := db.First(&sysApi)
@@ -47,14 +48,14 @@ func (s *SysApiRepo) Find(sysApi domain.SysApi) (domain.SysApi, error) {
 	return sysApi, res.Error
 }
 
-func (s *SysApiRepo) List(page domain.PageSysApiSearch) ([]domain.SysApi, int64, error) {
+func (s *SysApiRepo) List(ctx context.Context, page domain.PageSysApiSearch) ([]domain.SysApi, int64, error) {
 	var (
 		sysApiList []domain.SysApi
 		count      int64
 		err        error
 	)
 	// db
-	db := global.DB.Model(&domain.SysApi{})
+	db := global.DB.WithContext(ctx).Model(&domain.SysApi{})
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 

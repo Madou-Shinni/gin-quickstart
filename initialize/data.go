@@ -113,6 +113,9 @@ func MysqlInit(config *conf.MysqlConfig) {
 	)
 
 	global.DB = db
+
+	//plugin := gorm_plugin.NewLogPlugin()
+	//plugin.Apply(global.DB)
 }
 
 // redis连接初始化

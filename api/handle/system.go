@@ -62,7 +62,7 @@ func (cl *SystemHandle) Init(c *gin.Context) {
 			return err
 		}
 		// 添加管理员权限
-		err = casbinService.AddUserRoles(domain.UserRolesReq{
+		err = casbinService.AddUserRoles(c.Request.Context(), domain.UserRolesReq{
 			UserID: defaultUser.ID,
 			Roles:  []uint{defaultUser.DefaultRole},
 		})

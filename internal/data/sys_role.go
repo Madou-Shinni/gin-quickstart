@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -12,19 +13,19 @@ import (
 type SysRoleRepo struct {
 }
 
-func (s *SysRoleRepo) Create(sysRole domain.SysRole) error {
-	return global.DB.Create(&sysRole).Error
+func (s *SysRoleRepo) Create(ctx context.Context, sysRole domain.SysRole) error {
+	return global.DB.WithContext(ctx).Create(&sysRole).Error
 }
 
-func (s *SysRoleRepo) Delete(sysRole domain.SysRole) error {
-	return global.DB.Delete(&sysRole).Error
+func (s *SysRoleRepo) Delete(ctx context.Context, sysRole domain.SysRole) error {
+	return global.DB.WithContext(ctx).Delete(&sysRole).Error
 }
 
-func (s *SysRoleRepo) DeleteByIds(ids request.Ids) error {
-	return global.DB.Delete(&[]domain.SysRole{}, ids.Ids).Error
+func (s *SysRoleRepo) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	return global.DB.WithContext(ctx).Delete(&[]domain.SysRole{}, ids.Ids).Error
 }
 
-func (s *SysRoleRepo) Update(sysRole map[string]interface{}) error {
+func (s *SysRoleRepo) Update(ctx context.Context, sysRole map[string]interface{}) error {
 	var columns []string
 	for key := range sysRole {
 		columns = append(columns, key)
@@ -35,11 +36,11 @@ func (s *SysRoleRepo) Update(sysRole map[string]interface{}) error {
 	}
 	model := domain.SysRole{}
 	model.ID = uint(sysRole["id"].(float64))
-	return global.DB.Model(&model).Select(columns).Updates(&sysRole).Error
+	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&sysRole).Error
 }
 
-func (s *SysRoleRepo) Find(sysRole domain.SysRole) (domain.SysRole, error) {
-	db := global.DB.Model(&domain.SysRole{})
+func (s *SysRoleRepo) Find(ctx context.Context, sysRole domain.SysRole) (domain.SysRole, error) {
+	db := global.DB.WithContext(ctx).Model(&domain.SysRole{})
 	// TODO：条件过滤
 
 	res := db.First(&sysRole)
@@ -47,14 +48,14 @@ func (s *SysRoleRepo) Find(sysRole domain.SysRole) (domain.SysRole, error) {
 	return sysRole, res.Error
 }
 
-func (s *SysRoleRepo) List(page domain.PageSysRoleSearch) ([]domain.SysRole, int64, error) {
+func (s *SysRoleRepo) List(ctx context.Context, page domain.PageSysRoleSearch) ([]domain.SysRole, int64, error) {
 	var (
 		sysRoleList []domain.SysRole
 		count       int64
 		err         error
 	)
 	// db
-	db := global.DB.Model(&domain.SysRole{})
+	db := global.DB.WithContext(ctx).Model(&domain.SysRole{})
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 

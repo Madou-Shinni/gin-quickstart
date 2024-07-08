@@ -41,7 +41,7 @@ func (cl *SysApiHandle) Add(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Add(sysApi); err != nil {
+	if err := cl.s.Add(c.Request.Context(), sysApi); err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -65,7 +65,7 @@ func (cl *SysApiHandle) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Delete(sysApi); err != nil {
+	if err := cl.s.Delete(c.Request.Context(), sysApi); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -89,7 +89,7 @@ func (cl *SysApiHandle) DeleteByIds(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.DeleteByIds(ids); err != nil {
+	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -113,7 +113,7 @@ func (cl *SysApiHandle) Update(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Update(sysApi); err != nil {
+	if err := cl.s.Update(c.Request.Context(), sysApi); err != nil {
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -137,7 +137,7 @@ func (cl *SysApiHandle) Find(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.Find(sysApi)
+	res, err := cl.s.Find(c.Request.Context(), sysApi)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
@@ -163,7 +163,7 @@ func (cl *SysApiHandle) List(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.List(sysApi)
+	res, err := cl.s.List(c.Request.Context(), sysApi)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())

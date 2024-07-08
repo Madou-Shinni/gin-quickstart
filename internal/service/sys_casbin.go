@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
@@ -41,12 +42,12 @@ var (
 
 // 定义接口
 type SysCasbinRepo interface {
-	Create(sysCasbin domain.SysCasbin) error
-	Delete(sysCasbin domain.SysCasbin) error
-	Update(sysCasbin map[string]interface{}) error
-	Find(sysCasbin domain.SysCasbin) (domain.SysCasbin, error)
-	List(page domain.PageSysCasbinSearch) ([]domain.SysCasbin, int64, error)
-	DeleteByIds(ids request.Ids) error
+	Create(ctx context.Context, sysCasbin domain.SysCasbin) error
+	Delete(ctx context.Context, sysCasbin domain.SysCasbin) error
+	Update(ctx context.Context, sysCasbin map[string]interface{}) error
+	Find(ctx context.Context, sysCasbin domain.SysCasbin) (domain.SysCasbin, error)
+	List(ctx context.Context, page domain.PageSysCasbinSearch) ([]domain.SysCasbin, int64, error)
+	DeleteByIds(ctx context.Context, ids request.Ids) error
 }
 
 type SysCasbinService struct {
@@ -60,7 +61,7 @@ func NewSysCasbinService() *SysCasbinService {
 	return s
 }
 
-func (s *SysCasbinService) AddUserRoles(req domain.UserRolesReq) error {
+func (s *SysCasbinService) AddUserRoles(ctx context.Context, req domain.UserRolesReq) error {
 	ucs := constant.GetCasbinUserKey(req.UserID)
 	// 删除
 	_, err := s.e().DeleteRolesForUser(ucs)
@@ -82,7 +83,7 @@ func (s *SysCasbinService) AddUserRoles(req domain.UserRolesReq) error {
 	return nil
 }
 
-func (s *SysCasbinService) AddRoleRoles(req domain.RoleRolesReq) error {
+func (s *SysCasbinService) AddRoleRoles(ctx context.Context, req domain.RoleRolesReq) error {
 	// 删除角色
 	rcs := constant.GetCasbinRoleKey(req.Role)
 	_, err := s.e().DeleteRolesForUser(rcs)
@@ -104,7 +105,7 @@ func (s *SysCasbinService) AddRoleRoles(req domain.RoleRolesReq) error {
 	return nil
 }
 
-func (s *SysCasbinService) AddRolePermissions(req domain.RolePermissionsReq) error {
+func (s *SysCasbinService) AddRolePermissions(ctx context.Context, req domain.RolePermissionsReq) error {
 	rcs := constant.GetCasbinRoleKey(req.Role)
 	// 删除权限
 	_, err := s.e().DeletePermissionsForUser(rcs)
@@ -122,8 +123,8 @@ func (s *SysCasbinService) AddRolePermissions(req domain.RolePermissionsReq) err
 	return nil
 }
 
-func (s *SysCasbinService) Delete(sysCasbin domain.SysCasbin) error {
-	if err := s.repo.Delete(sysCasbin); err != nil {
+func (s *SysCasbinService) Delete(ctx context.Context, sysCasbin domain.SysCasbin) error {
+	if err := s.repo.Delete(ctx, sysCasbin); err != nil {
 		logger.Error("s.repo.Delete(sysCasbin)", zap.Error(err), zap.Any("domain.SysCasbin", sysCasbin))
 		return err
 	}
@@ -131,8 +132,8 @@ func (s *SysCasbinService) Delete(sysCasbin domain.SysCasbin) error {
 	return nil
 }
 
-func (s *SysCasbinService) Update(sysCasbin map[string]interface{}) error {
-	if err := s.repo.Update(sysCasbin); err != nil {
+func (s *SysCasbinService) Update(ctx context.Context, sysCasbin map[string]interface{}) error {
+	if err := s.repo.Update(ctx, sysCasbin); err != nil {
 		logger.Error("s.repo.Update(sysCasbin)", zap.Error(err), zap.Any("domain.SysCasbin", sysCasbin))
 		return err
 	}
@@ -140,8 +141,8 @@ func (s *SysCasbinService) Update(sysCasbin map[string]interface{}) error {
 	return nil
 }
 
-func (s *SysCasbinService) Find(sysCasbin domain.SysCasbin) (domain.SysCasbin, error) {
-	res, err := s.repo.Find(sysCasbin)
+func (s *SysCasbinService) Find(ctx context.Context, sysCasbin domain.SysCasbin) (domain.SysCasbin, error) {
+	res, err := s.repo.Find(ctx, sysCasbin)
 
 	if err != nil {
 		logger.Error("s.repo.Find(sysCasbin)", zap.Error(err), zap.Any("domain.SysCasbin", sysCasbin))
@@ -151,12 +152,12 @@ func (s *SysCasbinService) Find(sysCasbin domain.SysCasbin) (domain.SysCasbin, e
 	return res, nil
 }
 
-func (s *SysCasbinService) List(page domain.PageSysCasbinSearch) (response.PageResponse, error) {
+func (s *SysCasbinService) List(ctx context.Context, page domain.PageSysCasbinSearch) (response.PageResponse, error) {
 	var (
 		pageRes response.PageResponse
 	)
 
-	data, count, err := s.repo.List(page)
+	data, count, err := s.repo.List(ctx, page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageSysCasbinSearch", page))
 		return pageRes, err
@@ -168,8 +169,8 @@ func (s *SysCasbinService) List(page domain.PageSysCasbinSearch) (response.PageR
 	return pageRes, nil
 }
 
-func (s *SysCasbinService) DeleteByIds(ids request.Ids) error {
-	if err := s.repo.DeleteByIds(ids); err != nil {
+func (s *SysCasbinService) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	if err := s.repo.DeleteByIds(ctx, ids); err != nil {
 		logger.Error("s.DeleteByIds(ids)", zap.Error(err), zap.Any("ids request.Ids", ids))
 		return err
 	}

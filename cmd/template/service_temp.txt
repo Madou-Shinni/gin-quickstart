@@ -1,6 +1,7 @@
 package service
 
 import (
+    "context"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
@@ -11,12 +12,12 @@ import (
 
 // 定义接口
 type {{.Module}}Repo interface {
-	Create({{.ModuleLower}} domain.{{.Module}}) error
-	Delete({{.ModuleLower}} domain.{{.Module}}) error
-	Update({{.ModuleLower}} map[string]interface{}) error
-	Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
-	List(page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, int64, error)
-	DeleteByIds(ids request.Ids) error
+	Create(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
+	Delete(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
+	Update(ctx context.Context, {{.ModuleLower}} map[string]interface{}) error
+	Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
+	List(ctx context.Context, page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, int64, error)
+	DeleteByIds(ctx context.Context, ids request.Ids) error
 }
 
 type {{.Module}}Service struct {
@@ -27,9 +28,9 @@ func New{{.Module}}Service() *{{.Module}}Service {
 	return &{{.Module}}Service{repo: &data.{{.Module}}Repo{}}
 }
 
-func (s *{{.Module}}Service) Add({{.ModuleLower}} domain.{{.Module}}) error {
+func (s *{{.Module}}Service) Add(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
 	// 3.持久化入库
-	if err := s.repo.Create({{.ModuleLower}}); err != nil {
+	if err := s.repo.Create(ctx, {{.ModuleLower}}); err != nil {
 		// 4.记录日志
 		logger.Error("s.repo.Create({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err
@@ -38,8 +39,8 @@ func (s *{{.Module}}Service) Add({{.ModuleLower}} domain.{{.Module}}) error {
 	return nil
 }
 
-func (s *{{.Module}}Service) Delete({{.ModuleLower}} domain.{{.Module}}) error {
-	if err := s.repo.Delete({{.ModuleLower}}); err != nil {
+func (s *{{.Module}}Service) Delete(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
+	if err := s.repo.Delete(ctx, {{.ModuleLower}}); err != nil {
 		logger.Error("s.repo.Delete({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err
 	}
@@ -47,8 +48,8 @@ func (s *{{.Module}}Service) Delete({{.ModuleLower}} domain.{{.Module}}) error {
 	return nil
 }
 
-func (s *{{.Module}}Service) Update({{.ModuleLower}} map[string]interface{}) error {
-	if err := s.repo.Update({{.ModuleLower}}); err != nil {
+func (s *{{.Module}}Service) Update(ctx context.Context, {{.ModuleLower}} map[string]interface{}) error {
+	if err := s.repo.Update(ctx, {{.ModuleLower}}); err != nil {
 		logger.Error("s.repo.Update({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err
 	}
@@ -56,8 +57,8 @@ func (s *{{.Module}}Service) Update({{.ModuleLower}} map[string]interface{}) err
 	return nil
 }
 
-func (s *{{.Module}}Service) Find({{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
-	res, err := s.repo.Find({{.ModuleLower}})
+func (s *{{.Module}}Service) Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
+	res, err := s.repo.Find(ctx, {{.ModuleLower}})
 
 	if err != nil {
 		logger.Error("s.repo.Find({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
@@ -67,12 +68,12 @@ func (s *{{.Module}}Service) Find({{.ModuleLower}} domain.{{.Module}}) (domain.{
 	return res, nil
 }
 
-func (s *{{.Module}}Service) List(page domain.Page{{.Module}}Search) (response.PageResponse, error) {
+func (s *{{.Module}}Service) List(ctx context.Context, page domain.Page{{.Module}}Search) (response.PageResponse, error) {
 	var (
 		pageRes response.PageResponse
 	)
 
-	data, count, err := s.repo.List(page)
+	data, count, err := s.repo.List(ctx, page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.Page{{.Module}}Search", page))
 		return pageRes, err
@@ -84,8 +85,8 @@ func (s *{{.Module}}Service) List(page domain.Page{{.Module}}Search) (response.P
 	return pageRes, nil
 }
 
-func (s *{{.Module}}Service) DeleteByIds(ids request.Ids) error {
-	if err := s.repo.DeleteByIds(ids); err != nil {
+func (s *{{.Module}}Service) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	if err := s.repo.DeleteByIds(ctx, ids); err != nil {
 		logger.Error("s.DeleteByIds(ids)", zap.Error(err), zap.Any("ids request.Ids", ids))
 		return err
 	}

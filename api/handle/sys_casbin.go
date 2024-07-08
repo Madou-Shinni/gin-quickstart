@@ -41,7 +41,7 @@ func (cl *SysCasbinHandle) Add(c *gin.Context) {
 		return
 	}
 
-	err := cl.s.AddRolePermissions(sysCasbin)
+	err := cl.s.AddRolePermissions(c.Request.Context(), sysCasbin)
 	if err != nil {
 		response.Error(c, constant.CODE_ADD_FAILED)
 		return
@@ -66,7 +66,7 @@ func (cl *SysCasbinHandle) Delete(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Delete(sysCasbin); err != nil {
+	if err := cl.s.Delete(c.Request.Context(), sysCasbin); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -90,7 +90,7 @@ func (cl *SysCasbinHandle) DeleteByIds(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.DeleteByIds(ids); err != nil {
+	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -114,7 +114,7 @@ func (cl *SysCasbinHandle) Update(c *gin.Context) {
 		return
 	}
 
-	if err := cl.s.Update(sysCasbin); err != nil {
+	if err := cl.s.Update(c.Request.Context(), sysCasbin); err != nil {
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -138,7 +138,7 @@ func (cl *SysCasbinHandle) Find(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.Find(sysCasbin)
+	res, err := cl.s.Find(c.Request.Context(), sysCasbin)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
@@ -164,7 +164,7 @@ func (cl *SysCasbinHandle) List(c *gin.Context) {
 		return
 	}
 
-	res, err := cl.s.List(sysCasbin)
+	res, err := cl.s.List(c.Request.Context(), sysCasbin)
 
 	if err != nil {
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())

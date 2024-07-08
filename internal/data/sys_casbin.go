@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
@@ -12,19 +13,19 @@ import (
 type SysCasbinRepo struct {
 }
 
-func (s *SysCasbinRepo) Create(sysCasbin domain.SysCasbin) error {
-	return global.DB.Create(&sysCasbin).Error
+func (s *SysCasbinRepo) Create(ctx context.Context, sysCasbin domain.SysCasbin) error {
+	return global.DB.WithContext(ctx).Create(&sysCasbin).Error
 }
 
-func (s *SysCasbinRepo) Delete(sysCasbin domain.SysCasbin) error {
-	return global.DB.Delete(&sysCasbin).Error
+func (s *SysCasbinRepo) Delete(ctx context.Context, sysCasbin domain.SysCasbin) error {
+	return global.DB.WithContext(ctx).Delete(&sysCasbin).Error
 }
 
-func (s *SysCasbinRepo) DeleteByIds(ids request.Ids) error {
-	return global.DB.Delete(&[]domain.SysCasbin{}, ids.Ids).Error
+func (s *SysCasbinRepo) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	return global.DB.WithContext(ctx).Delete(&[]domain.SysCasbin{}, ids.Ids).Error
 }
 
-func (s *SysCasbinRepo) Update(sysCasbin map[string]interface{}) error {
+func (s *SysCasbinRepo) Update(ctx context.Context, sysCasbin map[string]interface{}) error {
 	var columns []string
 	for key := range sysCasbin {
 		columns = append(columns, key)
@@ -34,11 +35,11 @@ func (s *SysCasbinRepo) Update(sysCasbin map[string]interface{}) error {
 		return errors.New(fmt.Sprintf("missing %s.id", "sysCasbin"))
 	}
 	model := domain.SysCasbin{}
-	return global.DB.Model(&model).Select(columns).Updates(&sysCasbin).Error
+	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&sysCasbin).Error
 }
 
-func (s *SysCasbinRepo) Find(sysCasbin domain.SysCasbin) (domain.SysCasbin, error) {
-	db := global.DB.Model(&domain.SysCasbin{})
+func (s *SysCasbinRepo) Find(ctx context.Context, sysCasbin domain.SysCasbin) (domain.SysCasbin, error) {
+	db := global.DB.WithContext(ctx).Model(&domain.SysCasbin{})
 	// TODO：条件过滤
 
 	res := db.First(&sysCasbin)
@@ -46,14 +47,14 @@ func (s *SysCasbinRepo) Find(sysCasbin domain.SysCasbin) (domain.SysCasbin, erro
 	return sysCasbin, res.Error
 }
 
-func (s *SysCasbinRepo) List(page domain.PageSysCasbinSearch) ([]domain.SysCasbin, int64, error) {
+func (s *SysCasbinRepo) List(ctx context.Context, page domain.PageSysCasbinSearch) ([]domain.SysCasbin, int64, error) {
 	var (
 		sysCasbinList []domain.SysCasbin
 		count         int64
 		err           error
 	)
 	// db
-	db := global.DB.Model(&domain.SysCasbin{})
+	db := global.DB.WithContext(ctx).Model(&domain.SysCasbin{})
 	// page
 	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 

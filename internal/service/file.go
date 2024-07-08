@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
@@ -22,12 +23,12 @@ import (
 
 // 定义接口
 type FileRepo interface {
-	Create(file domain.File) error
-	Delete(file domain.File) error
-	Update(file map[string]interface{}) error
-	Find(file domain.File) (domain.File, error)
-	List(page domain.PageFileSearch) ([]domain.File, int64, error)
-	DeleteByIds(ids request.Ids) error
+	Create(ctx context.Context, file domain.File) error
+	Delete(ctx context.Context, file domain.File) error
+	Update(ctx context.Context, file map[string]interface{}) error
+	Find(ctx context.Context, file domain.File) (domain.File, error)
+	List(ctx context.Context, page domain.PageFileSearch) ([]domain.File, int64, error)
+	DeleteByIds(ctx context.Context, ids request.Ids) error
 }
 
 type FileService struct {
@@ -38,7 +39,7 @@ func NewFileService() *FileService {
 	return &FileService{repo: &data.FileRepo{}}
 }
 
-func (s *FileService) Add(file domain.File) error {
+func (s *FileService) Add(ctx context.Context, file domain.File) error {
 	// 1.生成唯一标识
 	// 因为我们在全局初始化的时候已经初始化了雪花算法的机器节点
 	// 所以我们可以直接使用
@@ -47,7 +48,7 @@ func (s *FileService) Add(file domain.File) error {
 	file.ID = id
 
 	// 3.持久化入库
-	if err := s.repo.Create(file); err != nil {
+	if err := s.repo.Create(ctx, file); err != nil {
 		// 4.记录日志
 		logger.Error("s.repo.Create(file)", zap.Error(err), zap.Any("domain.File", file))
 		return err
@@ -56,8 +57,8 @@ func (s *FileService) Add(file domain.File) error {
 	return nil
 }
 
-func (s *FileService) Delete(file domain.File) error {
-	if err := s.repo.Delete(file); err != nil {
+func (s *FileService) Delete(ctx context.Context, file domain.File) error {
+	if err := s.repo.Delete(ctx, file); err != nil {
 		logger.Error("s.repo.Delete(file)", zap.Error(err), zap.Any("domain.File", file))
 		return err
 	}
@@ -65,8 +66,8 @@ func (s *FileService) Delete(file domain.File) error {
 	return nil
 }
 
-func (s *FileService) Update(file map[string]interface{}) error {
-	if err := s.repo.Update(file); err != nil {
+func (s *FileService) Update(ctx context.Context, file map[string]interface{}) error {
+	if err := s.repo.Update(ctx, file); err != nil {
 		logger.Error("s.repo.Update(file)", zap.Error(err), zap.Any("domain.File", file))
 		return err
 	}
@@ -74,8 +75,8 @@ func (s *FileService) Update(file map[string]interface{}) error {
 	return nil
 }
 
-func (s *FileService) Find(file domain.File) (domain.File, error) {
-	res, err := s.repo.Find(file)
+func (s *FileService) Find(ctx context.Context, file domain.File) (domain.File, error) {
+	res, err := s.repo.Find(ctx, file)
 
 	if err != nil {
 		logger.Error("s.repo.Find(file)", zap.Error(err), zap.Any("domain.File", file))
@@ -85,12 +86,12 @@ func (s *FileService) Find(file domain.File) (domain.File, error) {
 	return res, nil
 }
 
-func (s *FileService) List(page domain.PageFileSearch) (response.PageResponse, error) {
+func (s *FileService) List(ctx context.Context, page domain.PageFileSearch) (response.PageResponse, error) {
 	var (
 		pageRes response.PageResponse
 	)
 
-	data, count, err := s.repo.List(page)
+	data, count, err := s.repo.List(ctx, page)
 	if err != nil {
 		logger.Error("s.repo.List(page)", zap.Error(err), zap.Any("domain.PageFileSearch", page))
 		return pageRes, err
@@ -102,8 +103,8 @@ func (s *FileService) List(page domain.PageFileSearch) (response.PageResponse, e
 	return pageRes, nil
 }
 
-func (s *FileService) DeleteByIds(ids request.Ids) error {
-	if err := s.repo.DeleteByIds(ids); err != nil {
+func (s *FileService) DeleteByIds(ctx context.Context, ids request.Ids) error {
+	if err := s.repo.DeleteByIds(ctx, ids); err != nil {
 		logger.Error("s.DeleteByIds(ids)", zap.Error(err), zap.Any("ids request.Ids", ids))
 		return err
 	}
@@ -112,7 +113,7 @@ func (s *FileService) DeleteByIds(ids request.Ids) error {
 }
 
 // 分片上传
-func (s *FileService) UploadChunk(file domain.File, fileHeader *multipart.FileHeader) (domain.File, error) {
+func (s *FileService) UploadChunk(ctx context.Context, file domain.File, fileHeader *multipart.FileHeader) (domain.File, error) {
 	var (
 		err error
 	)
@@ -152,13 +153,13 @@ func (s *FileService) UploadChunk(file domain.File, fileHeader *multipart.FileHe
 }
 
 // 秒传
-func (s *FileService) UploadFast(file domain.File) (domain.File, error) {
+func (s *FileService) UploadFast(ctx context.Context, file domain.File) (domain.File, error) {
 	var (
 		err error
 	)
 
 	// 秒传
-	f, err := s.repo.Find(file)
+	f, err := s.repo.Find(ctx, file)
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 无法秒传
@@ -170,7 +171,7 @@ func (s *FileService) UploadFast(file domain.File) (domain.File, error) {
 }
 
 // 合并分片
-func (s *FileService) MergeChunk(file domain.File) (domain.File, error) {
+func (s *FileService) MergeChunk(ctx context.Context, file domain.File) (domain.File, error) {
 	// 文件目录
 	fileDir := strconv.FormatInt(file.ID, 10) + "/"
 	dir := constant.FilePathPrefix + fileDir
@@ -203,7 +204,7 @@ func (s *FileService) MergeChunk(file domain.File) (domain.File, error) {
 	file.FilePath = dst
 
 	// 入库
-	err = s.repo.Create(file)
+	err = s.repo.Create(ctx, file)
 	if err != nil {
 		logger.Error("s.repo.Create(file)", zap.Error(err))
 		return domain.File{}, err
