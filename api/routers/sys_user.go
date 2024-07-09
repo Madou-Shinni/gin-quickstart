@@ -16,6 +16,7 @@ func SysUserRouterRegister(r *gin.RouterGroup) {
 		sysUserGroup.DELETE("/delete-batch", sysUserHandle.DeleteByIds)
 		sysUserGroup.GET("/:id", sysUserHandle.Find)
 		sysUserGroup.GET("/list", sysUserHandle.List)
+		sysUserGroup.POST("/login", sysUserHandle.Login)
 		sysUserGroup.PUT("", sysUserHandle.Update)
 	}
 }

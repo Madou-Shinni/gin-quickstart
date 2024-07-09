@@ -172,3 +172,33 @@ func (cl *SysUserHandle) List(c *gin.Context) {
 
 	response.Success(c, res)
 }
+
+// Login SysUser登录
+// @Tags     SysUser
+// @Summary  SysUser登录
+// @accept   application/json
+// @Produce  application/json
+// @Security ApiKeyAuth
+// @Param    data body     domain.LoginReq true "登录参数"
+// @Success  200  {string} string            "{"code":200,"msg":"登录成功","data":{}"}"
+// @Router   /sysUser/login [post]
+func (cl *SysUserHandle) Login(c *gin.Context) {
+	var sysUser domain.LoginReq
+	if err := c.ShouldBindJSON(&sysUser); err != nil {
+		var errs validator.ValidationErrors
+		if errors.As(err, &errs) {
+			response.Error(c, constant.CODE_INVALID_PARAMETER, tools.TransErrs(errs))
+			return
+		}
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	res, err := cl.s.Login(c.Request.Context(), sysUser)
+	if err != nil {
+		response.Error(c, constant.CODE_FIND_FAILED, err.Error())
+		return
+	}
+
+	response.Success(c, res)
+}

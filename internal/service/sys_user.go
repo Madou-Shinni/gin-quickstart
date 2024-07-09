@@ -3,17 +3,24 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/tools"
 	"github.com/Madou-Shinni/go-logger"
+	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var (
 	ErrorUserExist = errors.New("account already exist")
+	ErrorAccount   = errors.New("账号或密码错误")
 )
 
 // 定义接口
@@ -104,4 +111,34 @@ func (s *SysUserService) DeleteByIds(ctx context.Context, ids request.Ids) error
 	}
 
 	return nil
+}
+
+func (s *SysUserService) Login(ctx context.Context, user domain.LoginReq) (interface{}, error) {
+	// 查询用户
+	var sysUser domain.SysUser
+	err := global.DB.WithContext(ctx).Model(&domain.SysUser{}).First(&sysUser, "account = ?", user.Account).Error
+	if err != nil {
+		logger.Error("s.Login()", zap.Error(err), zap.Any("domain.SysUser", user))
+		return nil, ErrorAccount
+	}
+
+	// 验证密码
+	err = bcrypt.CompareHashAndPassword([]byte(sysUser.Password), []byte(user.Password))
+	if err != nil {
+		return nil, ErrorAccount
+	}
+
+	// 生成token
+	mp := jwt.MapClaims{
+		tools.UserIdKey: sysUser.ID,
+		tools.RoleIdKey: sysUser.DefaultRole,
+		tools.ExpKey:    conf.Conf.JwtConfig.AccessExpire,
+	}
+	token, err := tools.GenToken(mp, conf.Conf.JwtConfig.Secret)
+	if err != nil {
+		logger.Error("token生成失败", zap.Error(err), zap.Any("jwt.MapClaims", mp))
+		return nil, fmt.Errorf(constant.CODE_ERR_BUSY.Msg())
+	}
+
+	return token, nil
 }
