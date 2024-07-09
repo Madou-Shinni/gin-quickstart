@@ -17,5 +17,6 @@ func SysRoleRouterRegister(r *gin.RouterGroup) {
 		sysRoleGroup.GET("/:id", sysRoleHandle.Find)
 		sysRoleGroup.GET("/list", sysRoleHandle.List)
 		sysRoleGroup.PUT("", sysRoleHandle.Update)
+		sysRoleGroup.PUT("/user-list", sysRoleHandle.SetUserRoleList)
 	}
 }

@@ -43,7 +43,7 @@ func (s *SysUserRepo) Find(ctx context.Context, sysUser domain.SysUser) (domain.
 	db := global.DB.WithContext(ctx).Model(&domain.SysUser{})
 	// TODO：条件过滤
 
-	res := db.First(&sysUser)
+	res := db.Preload("Roles").First(&sysUser)
 
 	return sysUser, res.Error
 }
@@ -61,7 +61,7 @@ func (s *SysUserRepo) List(ctx context.Context, page domain.PageSysUserSearch) (
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Offset(offset).Limit(limit).Find(&sysUserList).Error
+	err = db.Count(&count).Offset(offset).Limit(limit).Preload("Roles").Find(&sysUserList).Error
 
 	return sysUserList, count, err
 }

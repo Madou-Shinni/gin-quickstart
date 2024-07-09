@@ -2,6 +2,7 @@ package handle
 
 import (
 	"errors"
+	"github.com/Madou-Shinni/gin-quickstart/common"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
@@ -171,4 +172,31 @@ func (cl *SysRoleHandle) List(c *gin.Context) {
 	}
 
 	response.Success(c, res)
+}
+
+// SetUserRoleList 设置用户角色列表
+// @Tags     SysRole
+// @Summary  设置用户角色列表
+// @accept   application/json
+// @Produce  application/json
+// @Security ApiKeyAuth
+// @Param    data body     domain.SysUser true "设置用户角色列表"
+// @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
+// @Router   /sysRole/user-list [put]
+func (cl *SysRoleHandle) SetUserRoleList(c *gin.Context) {
+	var SysUser domain.SysUser
+	if err := c.ShouldBindJSON(&SysUser); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
+		return
+	}
+
+	SysUser.DefaultRole, _ = common.GetRoleIdFromCtx(c)
+
+	err := cl.s.SetUserRoleList(c.Request.Context(), SysUser)
+	if err != nil {
+		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
+		return
+	}
+
+	response.Success(c)
 }

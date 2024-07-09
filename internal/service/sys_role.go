@@ -5,6 +5,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/Madou-Shinni/go-logger"
@@ -111,4 +112,49 @@ func (s *SysRoleService) DeleteByIds(ctx context.Context, ids request.Ids) error
 	}
 
 	return nil
+}
+
+func (s *SysRoleService) SetUserRoleList(ctx context.Context, sysUser domain.SysUser) error {
+	var sysRoles = sysUser.Roles
+	var ok bool
+	// 查询用户角色列表
+	err := global.DB.WithContext(ctx).Model(&domain.SysUser{}).First(&sysUser, "id = ?", sysUser.ID).Error
+	if err != nil {
+		return err
+	}
+
+	for _, v := range sysRoles {
+		if v.ID == sysUser.DefaultRole {
+			ok = true
+		}
+	}
+
+	err = global.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if !ok {
+			// 设置角色不包含 用户目前的默认角色
+			// 用户默认角色为空
+			var defaultRole uint
+			if len(sysRoles) > 0 {
+				defaultRole = sysRoles[0].ID
+			}
+			err = tx.Model(&domain.SysUser{}).Where("id = ?", sysUser.ID).UpdateColumn("default_role", defaultRole).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		err = tx.Model(&domain.SysUser{Model: model.Model{ID: sysUser.ID}}).
+			Association("Roles").
+			Replace(sysUser.Roles)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return err
 }
