@@ -5,7 +5,7 @@ app:
   machineID: 1
   server-port: 8080
   # 日志文件 ./logs/gin-quickstart.log
-  # log-file: gin-quickstart
+  log-file: ./logs/gin-quickstart.log
 # 数据库
 mysql:
   host: "127.0.0.1"

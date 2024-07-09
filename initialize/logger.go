@@ -12,7 +12,7 @@ func init() {
 	var err error
 
 	env := conf.Conf.Env
-	file := fmt.Sprint("./logs/", conf.Conf.LogFile, ".log")
+	file := fmt.Sprint(conf.Conf.LogFile)
 
 	if env == "prod" {
 		// 生产环境
