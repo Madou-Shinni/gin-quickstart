@@ -110,6 +110,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 		domain.SysRole{},
 		//domain.SysCasbin{},
 		domain.SysApi{},
+		domain.SysMenu{},
 	)
 
 	global.DB = db

@@ -7,8 +7,9 @@ import (
 
 type SysRole struct {
 	model.Model
-	ParentID uint   `gorm:"column:parent_id"`
-	RoleName string `gorm:"column:role_name"`
+	ParentID uint      `gorm:"column:parent_id"`
+	RoleName string    `gorm:"column:role_name"`
+	Menus    []SysMenu `gorm:"many2many:sys_role_sys_menu;" json:"menus"` // 菜单列表
 }
 
 type PageSysRoleSearch struct {
