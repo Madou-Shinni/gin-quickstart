@@ -2,9 +2,11 @@ package handle
 
 import (
 	"errors"
+	"github.com/Madou-Shinni/gin-quickstart/common"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools"
@@ -201,4 +203,29 @@ func (cl *SysUserHandle) Login(c *gin.Context) {
 	}
 
 	response.Success(c, res)
+}
+
+// Info 用户信息
+// @Tags     SysUser
+// @Summary  用户信息
+// @accept   application/json
+// @Produce  application/json
+// @Security ApiKeyAuth
+// @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
+// @Router   /sysUser/info [get]
+func (cl *SysUserHandle) Info(c *gin.Context) {
+	uid, err := common.GetUserIdFromCtx(c)
+	if err != nil {
+		response.Error(c, constant.CODE_FIND_FAILED, err.Error())
+		return
+	}
+
+	find, err := cl.s.Find(c.Request.Context(), domain.SysUser{Model: model.Model{ID: uid}})
+	if err != nil {
+		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
+		return
+	}
+
+	find.Password = ""
+	response.Success(c, find)
 }

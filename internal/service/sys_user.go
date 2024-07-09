@@ -16,6 +16,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 )
 
 var (
@@ -132,7 +133,7 @@ func (s *SysUserService) Login(ctx context.Context, user domain.LoginReq) (inter
 	mp := jwt.MapClaims{
 		tools.UserIdKey: sysUser.ID,
 		tools.RoleIdKey: sysUser.DefaultRole,
-		tools.ExpKey:    conf.Conf.JwtConfig.AccessExpire,
+		tools.ExpKey:    time.Duration(conf.Conf.JwtConfig.AccessExpire) * time.Second,
 	}
 	token, err := tools.GenToken(mp, conf.Conf.JwtConfig.Secret)
 	if err != nil {

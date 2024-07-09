@@ -15,7 +15,7 @@ func GetUserIdFromCtx(c *gin.Context) (uint, error) {
 		return 0, ErrorUserNotLogin
 	}
 
-	return u.(uint), nil
+	return uint(u.(float64)), nil
 }
 
 // GetRoleIdFromCtx 从上下文中获取用户角色
@@ -25,5 +25,5 @@ func GetRoleIdFromCtx(c *gin.Context) (uint, error) {
 		return 0, ErrorUserNotLogin
 	}
 
-	return u.(uint), nil
+	return uint(u.(float64)), nil
 }
