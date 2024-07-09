@@ -7,10 +7,13 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 var (
+	pwd           = "admin"
+	hashPwd, _    = bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
 	casbinService = service.NewSysCasbinService()
 	defaultRole   = domain.SysRole{
 		ParentID: 0,
@@ -18,7 +21,7 @@ var (
 	}
 	defaultUser = domain.SysUser{
 		Account:  "admin",
-		Password: "admin",
+		Password: string(hashPwd),
 		NickName: "超级管理员",
 		Roles: []domain.SysRole{
 			defaultRole,
@@ -77,5 +80,6 @@ func (cl *SystemHandle) Init(c *gin.Context) {
 		return
 	}
 
-	response.Success(c)
+	defaultUser.Password = pwd
+	response.Success(c, defaultUser)
 }
