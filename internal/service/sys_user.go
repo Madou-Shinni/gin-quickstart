@@ -24,6 +24,8 @@ var (
 	ErrorAccount   = errors.New("账号或密码错误")
 )
 
+var sysRoleService = NewSysRoleService()
+
 // 定义接口
 type SysUserRepo interface {
 	Create(ctx context.Context, sysUser domain.SysUser) error
@@ -83,6 +85,14 @@ func (s *SysUserService) Find(ctx context.Context, sysUser domain.SysUser) (doma
 	if err != nil {
 		logger.Error("s.repo.Find(sysUser)", zap.Error(err), zap.Any("domain.SysUser", sysUser))
 		return res, err
+	}
+
+	for i, v := range res.Roles {
+		tree, err := sysRoleService.GetRoleTree(global.DB, v.ID)
+		if err != nil {
+			return res, err
+		}
+		res.Roles[i].Children = tree
 	}
 
 	return res, nil

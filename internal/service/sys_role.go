@@ -99,6 +99,14 @@ func (s *SysRoleService) List(ctx context.Context, page domain.PageSysRoleSearch
 		return pageRes, err
 	}
 
+	for i, v := range data {
+		tree, err := s.GetRoleTree(global.DB, v.ID)
+		if err != nil {
+			return pageRes, err
+		}
+		data[i].Children = tree
+	}
+
 	pageRes.List = data
 	pageRes.Total = count
 
@@ -157,4 +165,22 @@ func (s *SysRoleService) SetUserRoleList(ctx context.Context, sysUser domain.Sys
 	}
 
 	return err
+}
+
+// GetRoleTree 递归树
+func (s *SysRoleService) GetRoleTree(db *gorm.DB, parentID uint) ([]domain.SysRole, error) {
+	var menus []domain.SysRole
+	if err := db.Where("parent_id = ?", parentID).Find(&menus).Error; err != nil {
+		return nil, err
+	}
+
+	for i := range menus {
+		children, err := s.GetRoleTree(db, menus[i].ID)
+		if err != nil {
+			return nil, err
+		}
+		menus[i].Children = children
+	}
+
+	return menus, nil
 }

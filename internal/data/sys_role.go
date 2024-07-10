@@ -61,7 +61,7 @@ func (s *SysRoleRepo) List(ctx context.Context, page domain.PageSysRoleSearch) (
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Offset(offset).Limit(limit).Find(&sysRoleList).Error
+	err = db.Where("parent_id = ?", 0).Count(&count).Offset(offset).Limit(limit).Find(&sysRoleList).Error
 
 	return sysRoleList, count, err
 }

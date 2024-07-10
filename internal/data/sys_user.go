@@ -43,7 +43,7 @@ func (s *SysUserRepo) Find(ctx context.Context, sysUser domain.SysUser) (domain.
 	db := global.DB.WithContext(ctx).Model(&domain.SysUser{})
 	// TODO：条件过滤
 
-	res := db.Preload("Roles").First(&sysUser)
+	res := db.Preload("Roles", "parent_id = ?", 0).First(&sysUser)
 
 	return sysUser, res.Error
 }

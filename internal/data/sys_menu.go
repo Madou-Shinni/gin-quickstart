@@ -61,7 +61,7 @@ func (s *SysMenuRepo) List(ctx context.Context, page domain.PageSysMenuSearch) (
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Offset(offset).Limit(limit).Find(&sysMenuList).Error
+	err = db.Where("parent_id = ?", 0).Count(&count).Offset(offset).Limit(limit).Find(&sysMenuList).Error
 
 	return sysMenuList, count, err
 }

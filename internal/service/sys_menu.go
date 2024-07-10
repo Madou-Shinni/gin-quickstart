@@ -10,6 +10,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
 	"github.com/Madou-Shinni/go-logger"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // 定义接口
@@ -81,6 +82,14 @@ func (s *SysMenuService) List(ctx context.Context, page domain.PageSysMenuSearch
 		return pageRes, err
 	}
 
+	for i, v := range data {
+		tree, err := s.GetMenuTree(global.DB, v.ID)
+		if err != nil {
+			return pageRes, err
+		}
+		data[i].Children = tree
+	}
+
 	pageRes.List = data
 	pageRes.Total = count
 
@@ -100,10 +109,19 @@ func (s *SysMenuService) RoleList(ctx context.Context, rid uint) ([]domain.SysMe
 	var list []domain.SysMenu
 
 	err := global.DB.WithContext(ctx).Model(&domain.SysRole{Model: model.Model{ID: rid}}).
+		Where("parent_id = ?", 0).
 		Association("Menus").
 		Find(&list)
 	if err != nil {
 		return nil, err
+	}
+
+	for i, v := range list {
+		tree, err := s.GetMenuTree(global.DB, v.ID)
+		if err != nil {
+			return nil, err
+		}
+		list[i].Children = tree
 	}
 
 	return list, nil
@@ -120,4 +138,22 @@ func (s *SysMenuService) SetRoleList(ctx context.Context, sysRole domain.SysRole
 	}
 
 	return err
+}
+
+// GetMenuTree 递归树
+func (s *SysMenuService) GetMenuTree(db *gorm.DB, parentID uint) ([]domain.SysMenu, error) {
+	var menus []domain.SysMenu
+	if err := db.Where("parent_id = ?", parentID).Find(&menus).Error; err != nil {
+		return nil, err
+	}
+
+	for i := range menus {
+		children, err := s.GetMenuTree(db, menus[i].ID)
+		if err != nil {
+			return nil, err
+		}
+		menus[i].Children = children
+	}
+
+	return menus, nil
 }
