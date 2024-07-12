@@ -22,14 +22,17 @@ func GinLogger() gin.HandlerFunc {
 		start := time.Now()
 		path := c.Request.URL.Path
 		query := c.Request.URL.RawQuery
-
-		// 解析表单数据里面的数据
-		if err := c.Request.ParseForm(); err != nil {
-			logger.Error("c.Request.ParseForm()", zap.Error(err))
-		}
-		// 读取表单数据
-		form := c.Request.PostForm.Encode()
+		form := ""
 		bodyStr := ""
+
+		if strings.Contains(c.ContentType(), "form") {
+			// 解析表单数据里面的数据
+			if err := c.Request.ParseForm(); err != nil {
+				logger.Error("c.Request.ParseForm()", zap.Error(err))
+			}
+			// 读取表单数据
+			form = c.Request.PostForm.Encode()
+		}
 
 		// 判断请求类型是否是json
 		if strings.Contains(c.ContentType(), "application/json") {

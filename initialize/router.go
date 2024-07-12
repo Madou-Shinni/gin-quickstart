@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"fmt"
+	"github.com/Madou-Shinni/go-logger"
 	"log"
 
 	"github.com/Madou-Shinni/gin-quickstart/api/routers"
@@ -39,6 +40,8 @@ func RunServer() {
 	private := r.Group("", middleware.JwtAuth(), middleware.CasbinHandler())
 
 	// 注册路由
+	// 热更新日志级别 debug info warn error
+	r.PUT("/logs-lvl", gin.WrapH(logger.ChangeLevelHandlerFunc()))
 	routers.DemoRouterRegister(public)
 	routers.FileRouterRegister(r)
 	routers.SystemRouterRegister(public)

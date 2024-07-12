@@ -1,15 +1,18 @@
 module github.com/Madou-Shinni/gin-quickstart
 
-go 1.20
+go 1.22
+
+toolchain go1.22.4
 
 require (
-	github.com/Madou-Shinni/go-logger v0.0.0-20230105054950-6be022937854
+	github.com/Madou-Shinni/go-logger v1.1.0
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/casbin/casbin/v2 v2.97.0
 	github.com/casbin/gorm-adapter/v3 v3.25.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2
+	github.com/glebarez/sqlite v1.7.0
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.11.1
@@ -24,6 +27,7 @@ require (
 	github.com/swaggo/swag v1.16.1
 	github.com/xuri/excelize/v2 v2.7.0
 	go.uber.org/zap v1.24.0
+	golang.org/x/crypto v0.14.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.5.6
 	gorm.io/gorm v1.25.8
@@ -36,7 +40,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/glebarez/go-sqlite v1.20.3 // indirect
-	github.com/glebarez/sqlite v1.7.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.9 // indirect
@@ -78,7 +81,6 @@ require (
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
