@@ -9,3 +9,7 @@ init:
 # build
 build:
 	docker build -t gin-quickstart:$(VERSION) .
+
+# sync api
+api-sync:
+	swag init && go run cmd/auto/main.go

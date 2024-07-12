@@ -101,6 +101,14 @@ GLOBAL OPTIONS:
 swag init
 ```
 
+### 同步api
+
+将api同步到数据库
+
+```shell
+make api-sync
+```
+
 ## 组件
 
 ### 日志组件

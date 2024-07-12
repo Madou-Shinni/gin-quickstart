@@ -6,10 +6,12 @@ import (
 )
 
 type SysApi struct {
-	model.Model
-	Name   string `json:"name"`
-	Method string `json:"method" gorm:"index:idx_method_path,unique"`
-	Path   string `json:"path" gorm:"index:idx_method_path,unique"`
+	ID        uint             `gorm:"primarykey" json:"id" form:"id" uri:"id"`
+	CreatedAt *model.LocalTime `json:"createdAt" form:"createdAt" swaggerignore:"true"`
+	UpdatedAt *model.LocalTime `json:"updatedAt" form:"updatedAt" swaggerignore:"true"`
+	Name      string           `json:"name" gorm:"name"`
+	Method    string           `json:"method" gorm:"index:idx_method_path,unique"`
+	Path      string           `json:"path" gorm:"index:idx_method_path,unique"`
 }
 
 type PageSysApiSearch struct {
