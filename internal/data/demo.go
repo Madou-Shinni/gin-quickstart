@@ -7,7 +7,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/pagelimit"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/scopes"
 )
 
 type DemoRepo struct {
@@ -25,18 +25,11 @@ func (s *DemoRepo) DeleteByIds(ctx context.Context, ids request.Ids) error {
 	return global.DB.WithContext(ctx).Delete(&[]domain.Demo{}, ids.Ids).Error
 }
 
-func (s *DemoRepo) Update(ctx context.Context, demo map[string]interface{}) error {
-	var columns []string
-	for key := range demo {
-		columns = append(columns, key)
-	}
-	if _, ok := demo["id"]; !ok {
-		// 不存在id
+func (s *DemoRepo) Update(ctx context.Context, demo domain.Demo) error {
+	if demo.ID == 0 {
 		return errors.New(fmt.Sprintf("missing %s.id", "demo"))
 	}
-	model := domain.Demo{}
-	model.ID = uint(demo["id"].(float64))
-	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&demo).Error
+	return global.DB.WithContext(ctx).Model(&demo).Scopes(scopes.UpdatesAllOmit()).Updates(&demo).Error
 }
 
 func (s *DemoRepo) Find(ctx context.Context, demo domain.Demo) (domain.Demo, error) {
@@ -56,12 +49,10 @@ func (s *DemoRepo) List(ctx context.Context, page domain.PageDemoSearch) ([]doma
 	)
 	// db
 	db := global.DB.Model(&domain.Demo{}).WithContext(ctx)
-	// page
-	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Offset(offset).Limit(limit).Find(&demoList).Error
+	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch)).Find(&demoList).Error
 
 	return demoList, count, err
 }

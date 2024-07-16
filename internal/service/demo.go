@@ -14,7 +14,7 @@ import (
 type DemoRepo interface {
 	Create(ctx context.Context, demo domain.Demo) error
 	Delete(ctx context.Context, demo domain.Demo) error
-	Update(ctx context.Context, demo map[string]interface{}) error
+	Update(ctx context.Context, demo domain.Demo) error
 	Find(ctx context.Context, demo domain.Demo) (domain.Demo, error)
 	List(ctx context.Context, page domain.PageDemoSearch) ([]domain.Demo, int64, error)
 	DeleteByIds(ctx context.Context, ids request.Ids) error
@@ -48,7 +48,7 @@ func (s *DemoService) Delete(ctx context.Context, demo domain.Demo) error {
 	return nil
 }
 
-func (s *DemoService) Update(ctx context.Context, demo map[string]interface{}) error {
+func (s *DemoService) Update(ctx context.Context, demo domain.Demo) error {
 	if err := s.repo.Update(ctx, demo); err != nil {
 		logger.Error("s.repo.Update(demo)", zap.Error(err), zap.Any("domain.Demo", demo))
 		return err

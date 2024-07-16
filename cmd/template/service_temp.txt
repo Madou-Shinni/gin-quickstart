@@ -14,7 +14,7 @@ import (
 type {{.Module}}Repo interface {
 	Create(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
 	Delete(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
-	Update(ctx context.Context, {{.ModuleLower}} map[string]interface{}) error
+	Update(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
 	Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
 	List(ctx context.Context, page domain.Page{{.Module}}Search) ([]domain.{{.Module}}, int64, error)
 	DeleteByIds(ctx context.Context, ids request.Ids) error
@@ -48,7 +48,7 @@ func (s *{{.Module}}Service) Delete(ctx context.Context, {{.ModuleLower}} domain
 	return nil
 }
 
-func (s *{{.Module}}Service) Update(ctx context.Context, {{.ModuleLower}} map[string]interface{}) error {
+func (s *{{.Module}}Service) Update(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
 	if err := s.repo.Update(ctx, {{.ModuleLower}}); err != nil {
 		logger.Error("s.repo.Update({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err

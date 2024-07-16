@@ -7,7 +7,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/pagelimit"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/scopes"
 )
 
 type {{.Module}}Repo struct {
@@ -25,18 +25,11 @@ func (s *{{.Module}}Repo) DeleteByIds(ctx context.Context, ids request.Ids) erro
 	return global.DB.WithContext(ctx).Delete(&[]domain.{{.Module}}{}, ids.Ids).Error
 }
 
-func (s *{{.Module}}Repo) Update(ctx context.Context, {{.ModuleLower}} map[string]interface{}) error {
-    var columns []string
-	for key := range {{.ModuleLower}} {
-		columns = append(columns, key)
-	}
-	if _,ok := {{.ModuleLower}}["id"];!ok {
-        // 不存在id
-        return errors.New(fmt.Sprintf("missing %s.id","{{.ModuleLower}}"))
+func (s *{{.Module}}Repo) Update(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
+    if {{.ModuleLower}}.ID == 0 {
+        return errors.New(fmt.Sprintf("missing %s.id", "{{.ModuleLower}}"))
     }
-	model := domain.{{.Module}}{}
-	model.ID = uint({{.ModuleLower}}["id"].(float64))
-	return global.DB.WithContext(ctx).Model(&model).Select(columns).Updates(&{{.ModuleLower}}).Error
+	return global.DB.WithContext(ctx).Model(&{{.ModuleLower}}).Scopes(scopes.UpdatesAllOmit()).Updates(&{{.ModuleLower}}).Error
 }
 
 func (s *{{.Module}}Repo) Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
@@ -56,12 +49,10 @@ func (s *{{.Module}}Repo) List(ctx context.Context, page domain.Page{{.Module}}S
 	)
 	// db
 	db := global.DB.WithContext(ctx).Model(&domain.{{.Module}}{})
-	// page
-	offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Offset(offset).Limit(limit).Find(&{{.ModuleLower}}List).Error
+	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch)).Find(&{{.ModuleLower}}List).Error
 
 	return {{.ModuleLower}}List, count, err
 }
