@@ -55,6 +55,10 @@ func (e *ExcelTool) WriteToBuffer() (*bytes.Buffer, error) {
 	return e.file.WriteToBuffer()
 }
 
+func (e *ExcelTool) SaveAs(filename string) error {
+	return e.file.SaveAs(filename)
+}
+
 // ReturnEmptyIfPointerIsNil 空指针则返回""
 func ReturnEmptyIfPointerIsNil(ptr interface{}) string {
 	value := reflect.ValueOf(ptr)

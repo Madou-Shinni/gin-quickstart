@@ -10,10 +10,10 @@ import (
 )
 
 type Excel struct {
-	ID     int    `ex:"head:序号;type:int;required;color:#0070C0"`
-	Name   string `ex:"head:姓名;type:string;required;color:#0070C0"`
-	Phone  string `ex:"head:手机号;type:string;required;color:#0070C0"`
-	Gender string `ex:"head:性别;type:string;required;color:#0070C0;select:男,女"`
+	ID     int    `excel:"序号"`
+	Name   string `excel:"姓名"`
+	Phone  string `excel:"手机号"`
+	Gender string `excel:"性别"`
 }
 
 func TestParseExcelTag(t *testing.T) {

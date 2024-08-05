@@ -40,13 +40,14 @@ func ParseExcelTag(data interface{}) []Setting {
 	numField := tp.NumField()                 // 获取结构体的字段数量
 
 	for i := 0; i < numField; i++ {
-		field := tp.Field(i)       // 获取字段
-		tag := field.Tag.Get("ex") // 获取tag中的ex值
+		field := tp.Field(i)          // 获取字段
+		tag := field.Tag.Get("excel") // 获取tag中的ex值
 		if tag == "" {
 			continue
 		}
-		s := parseFieldTag(setting, tag)
-		settingList = append(settingList, s)
+		//s := parseFieldTag(setting, tag)
+		setting.Head = tag
+		settingList = append(settingList, setting)
 	}
 	return settingList
 }

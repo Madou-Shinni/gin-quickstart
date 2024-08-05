@@ -28,3 +28,22 @@ func TestNewExcelTool(t *testing.T) {
 	// bytesBuf.Bytes() 作为流传递给前端
 	t.Log("success", bytesBuf.Bytes())
 }
+
+func TestExcelTool_SaveAs(t *testing.T) {
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
+		return
+	}
+	tool.
+		WriteHead(&Data{}).
+		WriteBody([]*Data{
+			{Name: "张三", Age: 18},
+		}).
+		Flush()
+	err := tool.SaveAs("test.xlsx")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
