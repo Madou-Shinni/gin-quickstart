@@ -2,6 +2,7 @@ package excel
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"reflect"
@@ -9,10 +10,12 @@ import (
 )
 
 type ExcelTool struct {
-	file  *excelize.File
-	sw    *excelize.StreamWriter
-	model interface{} // 结构体(head)
-	list  interface{} // 数据(body)
+	file                *excelize.File
+	sw                  *excelize.StreamWriter
+	model               interface{} // 结构体(head)
+	list                interface{} // 数据(body)
+	mergeConditionIndex int         // 合并条件（列下标从0开始，例如第一列相同则输入0）
+	mergeCols           []string    // 合并列
 }
 
 func NewExcelTool(sheet string) *ExcelTool {
@@ -39,16 +42,101 @@ func (e *ExcelTool) WriteBody(list interface{}) *ExcelTool {
 	return e
 }
 
+func (e *ExcelTool) MergeCols(head string, cols ...string) *ExcelTool {
+	e.mergeConditionIndex = e.HeadToMergeConditionIndex(head)
+	e.mergeCols = cols
+	return e
+}
+
+func (e *ExcelTool) HeadToMergeConditionIndex(head string) int {
+	tp := reflect.ValueOf(e.model).Type().Elem() // 获得结构体的反射Type
+	numField := tp.NumField()                    // 获取结构体的字段数量
+	for i := 0; i < numField; i++ {
+		field := tp.Field(i)          // 获取字段
+		tag := field.Tag.Get("excel") // 获取tag中的ex值
+		if tag == head {
+			return i
+		}
+	}
+	return 0
+}
+
 func (e *ExcelTool) Flush() error {
 	err := StreamWriteHead(e.sw, e.model)
 	if err != nil {
 		return err
 	}
-	err = StreamWriteBody(e.sw, e.list)
+	err = e.StreamWriteBodyWithMerge(e.sw, e.list, e.mergeConditionIndex, e.mergeCols)
 	if err != nil {
 		return err
 	}
 	return e.sw.Flush()
+}
+
+func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interface{}, mergeConditionIndex int, mergeCols []string) error {
+	// 判断d的数据类型
+	switch reflect.TypeOf(d).Kind() {
+	case reflect.Slice, reflect.Array:
+		// 是切片或者数组
+		values := reflect.ValueOf(d)
+		// 创建一个二维数组的数据集，用来存放最终数据集
+		data := make([][]interface{}, values.Len())
+		for i := 0; i < values.Len(); i++ {
+			// 取出切片中的每个结构体，利用反射获取值
+			record := values.Index(i).Elem()
+			if record.Kind() == reflect.Struct {
+				// 创建一个切片来表示一行数据
+				row := make([]interface{}, record.NumField())
+				for j := 0; j < record.NumField(); j++ {
+					// 遍历结构体中的字段，取出字段值
+					field := record.Field(j)
+					row[j] = excelize.Cell{
+						StyleID: 0,
+						Formula: "",
+						Value:   field.Interface(),
+					}
+				}
+				// 将每一行数据保存到二维数组中
+				data[i] = row
+			}
+		}
+
+		row := 2
+		var mergeStarted bool
+		var mergeRow int
+		for i := range data {
+			if i < len(data)-1 && len(mergeCols) > 0 {
+				if data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex] {
+					// 合并单元格 开始
+					mergeStarted = true
+					mergeRow = row
+				}
+				if mergeStarted && (data[i][mergeConditionIndex] != data[i+1][mergeConditionIndex] || i == len(data)-2) {
+					// 合并结束
+					mergeRowEnd := mergeRow + i + 1
+					mergeStarted = false
+					for _, col := range mergeCols {
+						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeRow), fmt.Sprintf("%s%d", col, mergeRowEnd))
+					}
+				}
+			}
+			// 逐行插入数据 将数据写入excel
+			// 数据都是从列号1开始；行号从2开始，因为第一行为标题行
+			axis, err := excelize.CoordinatesToCellName(1, row)
+			if err != nil {
+				return err
+			}
+			if err := sw.SetRow(axis, data[i], excelize.RowOpts{Height: 16}); err != nil {
+				return err
+			}
+			row++
+		}
+	default:
+		// 不支持改数据类型
+		return errors.New("resolution of this data type is not supported")
+	}
+
+	return nil
 }
 
 func (e *ExcelTool) WriteToBuffer() (*bytes.Buffer, error) {

@@ -4,6 +4,7 @@ import "testing"
 
 // 导出excel表，复杂类型给定string，业务上自己转换
 type Data struct {
+	ID   uint   `excel:"id"`
 	Name string `excel:"姓名"`
 	Age  int    `excel:"年龄"`
 }
@@ -40,6 +41,27 @@ func TestExcelTool_SaveAs(t *testing.T) {
 		WriteBody([]*Data{
 			{Name: "张三", Age: 18},
 		}).
+		Flush()
+	err := tool.SaveAs("test.xlsx")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+}
+
+func TestExcelTool_StreamWriteBodyWithMerge(t *testing.T) {
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
+		return
+	}
+	tool.
+		WriteHead(&Data{}).
+		WriteBody([]*Data{
+			{ID: 1, Name: "张三", Age: 18},
+			{ID: 1, Name: "Mark", Age: 27},
+		}).
+		MergeCols("id", "B").
 		Flush()
 	err := tool.SaveAs("test.xlsx")
 	if err != nil {
