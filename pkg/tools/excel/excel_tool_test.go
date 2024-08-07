@@ -59,9 +59,9 @@ func TestExcelTool_StreamWriteBodyWithMerge(t *testing.T) {
 		WriteHead(&Data{}).
 		WriteBody([]*Data{
 			{ID: 1, Name: "张三", Age: 18},
-			{ID: 1, Name: "Mark", Age: 27},
+			{ID: 1, Name: "张三", Age: 27},
 		}).
-		MergeCols("id", "B").
+		MergeCols("id", "姓名").
 		Flush()
 	err := tool.SaveAs("test.xlsx")
 	if err != nil {

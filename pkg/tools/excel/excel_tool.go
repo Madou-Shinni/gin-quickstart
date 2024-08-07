@@ -42,13 +42,41 @@ func (e *ExcelTool) WriteBody(list interface{}) *ExcelTool {
 	return e
 }
 
-func (e *ExcelTool) MergeCols(head string, cols ...string) *ExcelTool {
-	e.mergeConditionIndex = e.HeadToMergeConditionIndex(head)
-	e.mergeCols = cols
+func (e *ExcelTool) MergeCols(headCondition string, mergeHeads ...string) *ExcelTool {
+	e.mergeConditionIndex = e.headToMergeConditionIndex(headCondition)
+	e.mergeCols = e.headToCols(mergeHeads...)
 	return e
 }
 
-func (e *ExcelTool) HeadToMergeConditionIndex(head string) int {
+func (e *ExcelTool) headToCols(heads ...string) []string {
+	var cols []string
+	var headMap = make(map[string]struct{})
+	for _, head := range heads {
+		headMap[head] = struct{}{}
+	}
+	tp := reflect.ValueOf(e.model).Type().Elem() // 获得结构体的反射Type
+	numField := tp.NumField()                    // 获取结构体的字段数量
+	for i := 0; i < numField; i++ {
+		field := tp.Field(i)          // 获取字段
+		tag := field.Tag.Get("excel") // 获取tag中的ex值
+		if _, ok := headMap[tag]; ok {
+			cols = append(cols, indexToColumnName(i))
+		}
+	}
+	return cols
+}
+
+// Convert an integer to an Excel column name
+func indexToColumnName(index int) string {
+	columnName := ""
+	for index >= 0 {
+		columnName = string(rune('A'+(index%26))) + columnName
+		index = index/26 - 1
+	}
+	return columnName
+}
+
+func (e *ExcelTool) headToMergeConditionIndex(head string) int {
 	tp := reflect.ValueOf(e.model).Type().Elem() // 获得结构体的反射Type
 	numField := tp.NumField()                    // 获取结构体的字段数量
 	for i := 0; i < numField; i++ {
@@ -103,20 +131,28 @@ func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interf
 
 		row := 2
 		var mergeStarted bool
-		var mergeRow int
+		var mergeStartedRow, mergeEndedRow int
 		for i := range data {
-			if i < len(data)-1 && len(mergeCols) > 0 {
-				if data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex] {
+			if i < len(data)-1 {
+				if !mergeStarted && data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex] {
 					// 合并单元格 开始
 					mergeStarted = true
-					mergeRow = row
+					mergeStartedRow = row
 				}
-				if mergeStarted && (data[i][mergeConditionIndex] != data[i+1][mergeConditionIndex] || i == len(data)-2) {
-					// 合并结束
-					mergeRowEnd := mergeRow + i + 1
+				if mergeStarted && (data[i][mergeConditionIndex] != data[i+1][mergeConditionIndex]) {
+					// 后一行合并条件不同 合并结束
+					mergeEndedRow = row
 					mergeStarted = false
 					for _, col := range mergeCols {
-						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeRow), fmt.Sprintf("%s%d", col, mergeRowEnd))
+						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeStartedRow), fmt.Sprintf("%s%d", col, mergeEndedRow))
+					}
+				}
+				if mergeStarted && (data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex]) && i+1 == len(data)-1 {
+					// 后是最后一行并且和前数据相同 合并结束
+					mergeEndedRow = row + 1
+					mergeStarted = false
+					for _, col := range mergeCols {
+						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeStartedRow), fmt.Sprintf("%s%d", col, mergeEndedRow))
 					}
 				}
 			}
