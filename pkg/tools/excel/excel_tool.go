@@ -94,9 +94,11 @@ func (e *ExcelTool) Flush() error {
 	if err != nil {
 		return err
 	}
-	err = e.StreamWriteBodyWithMerge(e.sw, e.list, e.mergeConditionIndex, e.mergeCols)
-	if err != nil {
-		return err
+	if e.list != nil {
+		err = e.StreamWriteBodyWithMerge(e.sw, e.list, e.mergeConditionIndex, e.mergeCols)
+		if err != nil {
+			return err
+		}
 	}
 	return e.sw.Flush()
 }
