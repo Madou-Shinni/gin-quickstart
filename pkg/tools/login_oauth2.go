@@ -1,6 +1,9 @@
 package tools
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 const (
 	LoginGithubUrl = "https://github.com/login/oauth/access_token" // 登录github
@@ -41,7 +44,7 @@ func LoginGithub(req LoginGithubReq) (result LoginGithubResp, err error) {
 		"client_secret": req.ClientSecret,
 		"code":          req.Code,
 	}
-	resp, err := NewRequest(GET, LoginGithubUrl, data, headers)
+	resp, err := NewRequest(GET, time.Second, LoginGithubUrl, data, headers)
 	if err != nil {
 		return
 	}
@@ -59,7 +62,7 @@ func (r LoginGithubResp) GetUserInfo() (result *GithubUserResp, err error) {
 		"Authorization": "token " + r.AccessToken,
 	}
 
-	resp, err := NewRequest(GET, GithubUserUrl, nil, header)
+	resp, err := NewRequest(GET, time.Second, GithubUserUrl, nil, header)
 	if err != nil {
 		return
 	}

@@ -100,7 +100,7 @@ func (s *SysRoleService) List(ctx context.Context, page domain.PageSysRoleSearch
 	}
 
 	for i, v := range data {
-		tree, err := s.GetRoleTree(global.DB, v.ID)
+		tree, err := s.GetRoleTree(global.DB.WithContext(ctx), v.ID)
 		if err != nil {
 			return pageRes, err
 		}

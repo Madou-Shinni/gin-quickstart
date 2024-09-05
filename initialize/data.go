@@ -3,6 +3,7 @@ package initialize
 import (
 	"flag"
 	"fmt"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/message_queue"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,6 +30,7 @@ func init() {
 	ConfigInit()
 	MysqlInit(conf.Conf.MysqlConfig)
 	RedisInit(conf.Conf.RedisConfig)
+	ProducerInit(conf.Conf.AsynqConfig)
 }
 
 // 初始化配置
@@ -113,7 +115,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 		domain.SysMenu{},
 	)
 
-	global.DB = db
+	global.DB = global.NewData(db)
 
 	//plugin := gorm_plugin.NewLogPlugin()
 	//plugin.Apply(global.DB)
@@ -138,12 +140,18 @@ func RedisInit(config *conf.RedisConfig) {
 	return
 }
 
+func ProducerInit(config *conf.AsynqConfig) {
+	client := message_queue.NewAsynqClient(config.Addr, config.Password, config.DB)
+	global.Producer = client
+}
+
 // 释放资源
 func Close() {
 	if global.Rdb == nil {
 		return
 	}
 	global.Rdb.Close()
+	global.Producer.Close()
 }
 
 // 获取目录下所有的yaml文件

@@ -46,7 +46,7 @@ func NewSysUserService() *SysUserService {
 
 func (s *SysUserService) Add(ctx context.Context, sysUser domain.SysUser) error {
 	// 3.持久化入库
-	db := global.DB.Model(&domain.SysUser{})
+	db := global.DB.WithContext(ctx).Model(&domain.SysUser{})
 	err := db.Where("account = ?", sysUser.Account).First(&domain.SysUser{}).Error
 	if err == nil {
 		return ErrorUserExist
@@ -88,7 +88,7 @@ func (s *SysUserService) Find(ctx context.Context, sysUser domain.SysUser) (doma
 	}
 
 	for i, v := range res.Roles {
-		tree, err := sysRoleService.GetRoleTree(global.DB, v.ID)
+		tree, err := sysRoleService.GetRoleTree(global.DB.WithContext(ctx), v.ID)
 		if err != nil {
 			return res, err
 		}

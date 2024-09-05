@@ -83,7 +83,7 @@ func (s *SysMenuService) List(ctx context.Context, page domain.PageSysMenuSearch
 	}
 
 	for i, v := range data {
-		tree, err := s.GetMenuTree(global.DB, v.ID)
+		tree, err := s.GetMenuTree(global.DB.WithContext(ctx), v.ID)
 		if err != nil {
 			return pageRes, err
 		}
@@ -117,7 +117,7 @@ func (s *SysMenuService) RoleList(ctx context.Context, rid uint) ([]domain.SysMe
 	}
 
 	for i, v := range list {
-		tree, err := s.GetMenuTree(global.DB, v.ID)
+		tree, err := s.GetMenuTree(global.DB.WithContext(ctx), v.ID)
 		if err != nil {
 			return nil, err
 		}

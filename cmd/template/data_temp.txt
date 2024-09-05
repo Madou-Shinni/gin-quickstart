@@ -13,7 +13,7 @@ import (
 type {{.Module}}Repo struct {
 }
 
-func (s *{{.Module}}Repo) Create(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
+func (s *{{.Module}}Repo) Create(ctx context.Context, {{.ModuleLower}} *domain.{{.Module}}) error {
 	return global.DB.WithContext(ctx).Create(&{{.ModuleLower}}).Error
 }
 

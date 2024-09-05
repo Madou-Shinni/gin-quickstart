@@ -3,6 +3,7 @@ package main
 // 使用 _引入依赖项在main函数执行会直接调用init函数
 import (
 	"github.com/Madou-Shinni/gin-quickstart/initialize"
+	"github.com/Madou-Shinni/gin-quickstart/job"
 	"github.com/Madou-Shinni/go-logger"
 	"log"
 	"os"
@@ -21,6 +22,7 @@ import (
 func main() {
 	// 启动服务(使用goroutine解决服务启动时程序阻塞问题)
 	go initialize.RunServer()
+	job.RunConsumer()
 
 	// 监听信号
 	signals := make(chan os.Signal, 1)

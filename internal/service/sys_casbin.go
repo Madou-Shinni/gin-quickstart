@@ -186,7 +186,7 @@ func Casbin() *casbin.Enforcer {
 			return
 		}
 
-		a, err := gormadapter.NewAdapterByDB(global.DB)
+		a, err := gormadapter.NewAdapterByDB(global.DB.WithContext(context.Background()))
 		if err != nil {
 			logger.Error("Casbin NewAdapterByDB", zap.Error(err))
 			return

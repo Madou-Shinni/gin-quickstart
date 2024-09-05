@@ -2,10 +2,12 @@ package tools
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 type HttpMethod string
@@ -18,7 +20,9 @@ const (
 )
 
 // NewRequest 请求包装
-func NewRequest(method HttpMethod, url string, data map[string]interface{}, headers map[string]string) (body []byte, err error) {
+func NewRequest(method HttpMethod, timeout time.Duration, url string, data map[string]interface{}, headers map[string]string) (body []byte, err error) {
+	ctx, cancelFunc := context.WithTimeout(context.Background(), timeout)
+	defer cancelFunc()
 
 	if method == "GET" {
 		var query string
@@ -36,7 +40,7 @@ func NewRequest(method HttpMethod, url string, data map[string]interface{}, head
 	}
 
 	client := http.Client{}
-	req, err := http.NewRequest(string(method), url, bytes.NewBuffer(marshal))
+	req, err := http.NewRequestWithContext(ctx, string(method), url, bytes.NewBuffer(marshal))
 	if err != nil {
 		return body, err
 	}

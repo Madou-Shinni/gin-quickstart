@@ -33,7 +33,7 @@ func (s *DemoRepo) Update(ctx context.Context, demo domain.Demo) error {
 }
 
 func (s *DemoRepo) Find(ctx context.Context, demo domain.Demo) (domain.Demo, error) {
-	db := global.DB.Model(&domain.Demo{}).WithContext(ctx)
+	db := global.DB.WithContext(ctx).Model(&domain.Demo{})
 	// TODO：条件过滤
 
 	res := db.First(&demo)
@@ -48,7 +48,7 @@ func (s *DemoRepo) List(ctx context.Context, page domain.PageDemoSearch) ([]doma
 		err      error
 	)
 	// db
-	db := global.DB.Model(&domain.Demo{}).WithContext(ctx)
+	db := global.DB.WithContext(ctx).Model(&domain.Demo{})
 
 	// TODO：条件过滤
 

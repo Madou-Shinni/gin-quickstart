@@ -12,7 +12,7 @@ import (
 
 // 定义接口
 type {{.Module}}Repo interface {
-	Create(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
+	Create(ctx context.Context, {{.ModuleLower}} *domain.{{.Module}}) error
 	Delete(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
 	Update(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error
 	Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error)
@@ -30,7 +30,7 @@ func New{{.Module}}Service() *{{.Module}}Service {
 
 func (s *{{.Module}}Service) Add(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) error {
 	// 3.持久化入库
-	if err := s.repo.Create(ctx, {{.ModuleLower}}); err != nil {
+	if err := s.repo.Create(ctx, &{{.ModuleLower}}); err != nil {
 		// 4.记录日志
 		logger.Error("s.repo.Create({{.ModuleLower}})", zap.Error(err), zap.Any("domain.{{.Module}}", {{.ModuleLower}}))
 		return err

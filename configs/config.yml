@@ -20,6 +20,17 @@ redis:
   addr: "127.0.0.1:6379"
   password: ""
   db: 0
+# asynq
+asynq:
+  addr: "127.0.0.1:6379"
+  password: ""
+  db: 1
+# 短信
+sms:
+  sms_server: https://xxxx
+  sms_send_path: /v1/sms
+  sms_token: xxxxxxxxx
+  sms_verify_expire: 360
 # jwt
 jwt:
   # 过期时间(秒)

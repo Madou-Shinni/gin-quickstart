@@ -47,12 +47,12 @@ func NewSystemHandle() *SystemHandle {
 func (cl *SystemHandle) Init(c *gin.Context) {
 	var err error
 	var count int64
-	global.DB.Model(&domain.SysRole{}).Count(&count)
+	global.DB.WithContext(c.Request.Context()).Model(&domain.SysRole{}).Count(&count)
 	if count > 0 {
 		response.Error(c, constant.CODE_ADD_FAILED, "已完成初始化，请勿重复")
 		return
 	}
-	err = global.DB.Transaction(func(tx *gorm.DB) error {
+	err = global.DB.WithContext(c.Request.Context()).Transaction(func(tx *gorm.DB) error {
 		// 添加管理员
 		err = tx.Model(&domain.SysUser{}).Create(&defaultUser).Error
 		if err != nil {

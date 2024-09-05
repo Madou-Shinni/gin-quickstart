@@ -8,6 +8,7 @@ type ProfileInfo struct {
 	*RedisConfig  `mapstructure:"redis"`
 	*JwtConfig    `mapstructure:"jwt"`
 	*UploadConfig `mapstructure:"upload"`
+	*AsynqConfig  `mapstructure:"asynq"`
 }
 
 // 系统配置
@@ -31,6 +32,13 @@ type MysqlConfig struct {
 
 // redis配置
 type RedisConfig struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
+}
+
+// AsynqConfig配置
+type AsynqConfig struct {
 	Addr     string `mapstructure:"addr"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
