@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	_ "github.com/Madou-Shinni/gin-quickstart/initialize"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
@@ -58,7 +59,7 @@ func syncApi() {
 		slice = append(slice, &item)
 	}
 
-	err = global.DB.Clauses(clause.OnConflict{
+	err = global.DB.WithContext(context.Background()).Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "method"}, {Name: "path"}},
 		DoUpdates: clause.AssignmentColumns([]string{"method", "path", "name"}),
 	}).Create(&slice).Error

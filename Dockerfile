@@ -14,7 +14,7 @@ COPY . .
 
 RUN go mod tidy
 
-RUN GOOS=linux GOARCH=amd64 go build -o ./bin/server ./cmd/...
+RUN GOOS=linux GOARCH=amd64 go build -o ./bin/server ./cmd/main.go
 
 RUN chmod +x ./bin/server
 
