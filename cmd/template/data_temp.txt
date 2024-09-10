@@ -29,7 +29,7 @@ func (s *{{.Module}}Repo) Update(ctx context.Context, {{.ModuleLower}} domain.{{
     if {{.ModuleLower}}.ID == 0 {
         return errors.New(fmt.Sprintf("missing %s.id", "{{.ModuleLower}}"))
     }
-	return global.DB.WithContext(ctx).Model(&{{.ModuleLower}}).Scopes(scopes.UpdatesAllOmit()).Updates(&{{.ModuleLower}}).Error
+	return global.DB.WithContext(ctx).Model(&{{.ModuleLower}}).Updates(&{{.ModuleLower}}).Error
 }
 
 func (s *{{.Module}}Repo) Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
