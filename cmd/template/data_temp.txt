@@ -6,6 +6,7 @@ import (
     "fmt"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/scopes"
 )
@@ -29,7 +30,7 @@ func (s *{{.Module}}Repo) Update(ctx context.Context, {{.ModuleLower}} domain.{{
     if {{.ModuleLower}}.ID == 0 {
         return errors.New(fmt.Sprintf("missing %s.id", "{{.ModuleLower}}"))
     }
-	return global.DB.WithContext(ctx).Model(&{{.ModuleLower}}).Updates(&{{.ModuleLower}}).Error
+	return global.DB.WithContext(ctx).Model(&domain.{{.Module}}{Model: model.Model{ID: {{.ModuleLower}}.ID}}).Updates(&{{.ModuleLower}}).Error
 }
 
 func (s *{{.Module}}Repo) Find(ctx context.Context, {{.ModuleLower}} domain.{{.Module}}) (domain.{{.Module}}, error) {
