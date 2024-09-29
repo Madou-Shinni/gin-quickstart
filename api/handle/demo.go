@@ -36,11 +36,13 @@ func (cl *DemoHandle) Add(c *gin.Context) {
 			response.Error(c, constant.CODE_INVALID_PARAMETER, tools.TransErrs(errs))
 			return
 		}
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.Add(c.Request.Context(), demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -59,6 +61,7 @@ func (cl *DemoHandle) Add(c *gin.Context) {
 func (cl *DemoHandle) Delete(c *gin.Context) {
 	var demo domain.Demo
 	if err := c.ShouldBindJSON(&demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
@@ -82,11 +85,13 @@ func (cl *DemoHandle) Delete(c *gin.Context) {
 func (cl *DemoHandle) DeleteByIds(c *gin.Context) {
 	var ids request.Ids
 	if err := c.ShouldBindJSON(&ids); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -105,11 +110,13 @@ func (cl *DemoHandle) DeleteByIds(c *gin.Context) {
 func (cl *DemoHandle) Update(c *gin.Context) {
 	var demo domain.Demo
 	if err := c.ShouldBindJSON(&demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.Update(c.Request.Context(), demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -128,6 +135,7 @@ func (cl *DemoHandle) Update(c *gin.Context) {
 func (cl *DemoHandle) Find(c *gin.Context) {
 	var demo domain.Demo
 	if err := c.ShouldBindUri(&demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
@@ -135,6 +143,7 @@ func (cl *DemoHandle) Find(c *gin.Context) {
 	res, err := cl.s.Find(c.Request.Context(), demo)
 
 	if err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
@@ -153,6 +162,7 @@ func (cl *DemoHandle) Find(c *gin.Context) {
 func (cl *DemoHandle) List(c *gin.Context) {
 	var demo domain.PageDemoSearch
 	if err := c.ShouldBindQuery(&demo); err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
@@ -160,6 +170,7 @@ func (cl *DemoHandle) List(c *gin.Context) {
 	res, err := cl.s.List(c.Request.Context(), demo)
 
 	if err != nil {
+		c.Error(err)
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}

@@ -33,10 +33,11 @@ func Error(c *gin.Context, errorCode constant.RspCode, msg ...string) {
 	var r Response
 
 	r.Code = errorCode
+	r.Message = r.Code.Msg()
 
 	if len(msg) > 0 {
 		r.Message = msg[0]
 	}
 
-	c.JSON(http.StatusOK, r)
+	c.JSON(http.StatusBadRequest, r)
 }

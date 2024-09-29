@@ -11,9 +11,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"runtime/debug"
+	"runtime"
 	"strings"
 	"time"
+)
+
+const (
+	defaultSkipFrames = 4
+	defaultMaxPC      = 4
 )
 
 // GinLogger 接收gin框架默认的日志
@@ -96,7 +101,7 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 					logger.Error("[Recovery from panic]",
 						zap.Any("error", err),
 						zap.String("request", string(httpRequest)),
-						zap.String("stack", string(debug.Stack())),
+						zap.String("stack", getRelevantStack(defaultSkipFrames)),
 					)
 				} else {
 					logger.Error("[Recovery from panic]",
@@ -109,4 +114,25 @@ func GinRecovery(stack bool) gin.HandlerFunc {
 		}()
 		c.Next()
 	}
+}
+
+// 获取有效的堆栈信息 忽略前skipFrames层
+func getRelevantStack(skipFrames int) string {
+	stackBuf := make([]uintptr, defaultMaxPC) // 限制最多10层调用深度
+	length := runtime.Callers(skipFrames, stackBuf[:])
+
+	stack := strings.Builder{}
+	for i := 0; i < length; i++ {
+		pc := stackBuf[i]
+		fn := runtime.FuncForPC(pc - 1) // 获取当前帧的函数信息
+		if fn == nil {
+			continue
+		}
+		file, line := fn.FileLine(pc - 1)
+		// 过滤掉一些无关的系统文件或日志打印相关的代码
+		if !strings.Contains(file, "runtime/") && !strings.Contains(file, "zap") {
+			stack.WriteString(fmt.Sprintf("%s:%d %s\n", file, line, fn.Name()))
+		}
+	}
+	return stack.String()
 }

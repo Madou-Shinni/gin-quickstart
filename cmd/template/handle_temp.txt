@@ -37,11 +37,13 @@ func (cl *{{.Module}}Handle) Add(c *gin.Context) {
             response.Error(c, constant.CODE_INVALID_PARAMETER, tools.TransErrs(errs))
             return
         }
+        c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.Add(c.Request.Context(), {{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_ADD_FAILED, constant.CODE_ADD_FAILED.Msg())
 		return
 	}
@@ -61,11 +63,13 @@ func (cl *{{.Module}}Handle) Add(c *gin.Context) {
 func (cl *{{.Module}}Handle) Delete(c *gin.Context) {
 	var {{.ModuleLower}} domain.{{.Module}}
 	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.Delete(c.Request.Context(), {{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -85,11 +89,13 @@ func (cl *{{.Module}}Handle) Delete(c *gin.Context) {
 func (cl *{{.Module}}Handle) DeleteByIds(c *gin.Context) {
 	var ids request.Ids
 	if err := c.ShouldBindJSON(&ids); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.DeleteByIds(c.Request.Context(), ids); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_DELETE_FAILED, constant.CODE_DELETE_FAILED.Msg())
 		return
 	}
@@ -109,11 +115,13 @@ func (cl *{{.Module}}Handle) DeleteByIds(c *gin.Context) {
 func (cl *{{.Module}}Handle) Update(c *gin.Context) {
 	var {{.ModuleLower}} domain.{{.Module}}
 	if err := c.ShouldBindJSON(&{{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
 
 	if err := cl.s.Update(c.Request.Context(), {{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_UPDATE_FAILED, constant.CODE_UPDATE_FAILED.Msg())
 		return
 	}
@@ -133,6 +141,7 @@ func (cl *{{.Module}}Handle) Update(c *gin.Context) {
 func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 	var {{.ModuleLower}} domain.{{.Module}}
 	if err := c.ShouldBindUri(&{{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
@@ -140,6 +149,7 @@ func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 	res, err := cl.s.Find(c.Request.Context(), {{.ModuleLower}})
 
 	if err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
@@ -159,6 +169,7 @@ func (cl *{{.Module}}Handle) Find(c *gin.Context) {
 func (cl *{{.Module}}Handle) List(c *gin.Context) {
 	var {{.ModuleLower}} domain.Page{{.Module}}Search
 	if err := c.ShouldBindQuery(&{{.ModuleLower}}); err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_INVALID_PARAMETER, constant.CODE_INVALID_PARAMETER.Msg())
 		return
 	}
@@ -166,6 +177,7 @@ func (cl *{{.Module}}Handle) List(c *gin.Context) {
 	res, err := cl.s.List(c.Request.Context(), {{.ModuleLower}})
 
 	if err != nil {
+	    c.Error(err)
 		response.Error(c, constant.CODE_FIND_FAILED, constant.CODE_FIND_FAILED.Msg())
 		return
 	}
