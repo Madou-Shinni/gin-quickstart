@@ -23,6 +23,27 @@ type Model struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt" form:"deletedAt" swaggerignore:"true"`
 }
 
+func (t *LocalTime) UnmarshalParam(param string) error {
+	if string(param) == "" {
+		return nil
+	}
+	if !strings.Contains(param, "T") {
+		loc, _ := time.LoadLocation("Asia/Shanghai")
+		now, err := time.ParseInLocation(time.DateTime, param, loc)
+		if err != nil {
+			return err
+		}
+		*t = LocalTime{Time: now}
+	} else {
+		parse, err := time.Parse(time.RFC3339, param)
+		if err != nil {
+			return err
+		}
+		*t = LocalTime{Time: parse}
+	}
+	return nil
+}
+
 func (t *LocalTime) UnmarshalJSON(data []byte) (err error) {
 	if string(data) == "null" {
 		return nil
