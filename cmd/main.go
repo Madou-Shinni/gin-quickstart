@@ -22,7 +22,7 @@ import (
 func main() {
 	// 启动服务(使用goroutine解决服务启动时程序阻塞问题)
 	go initialize.RunServer()
-	job.RunConsumer()
+	go job.RunConsumer()
 
 	// 监听信号
 	signals := make(chan os.Signal, 1)
