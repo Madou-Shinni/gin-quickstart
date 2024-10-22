@@ -42,18 +42,16 @@ func NewAsynqClient(addr string, pwd string, db int, opts ...asynqOpt) *AsynqCli
 	return asynqClient
 }
 
-func (c *AsynqClient) NewTask(typename string, payload any, opts ...asynqOpt) error {
+func (c *AsynqClient) NewTask(typename string, payload any, opts ...asynq.Option) error {
 	marshal, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
 	task := asynq.NewTask(typename, marshal)
 
-	for _, f := range opts {
-		f(c)
-	}
+	opts = append([]asynq.Option{asynq.MaxRetry(c.maxRetry)}, opts...)
 
-	_, err = c.Enqueue(task, asynq.MaxRetry(c.maxRetry))
+	_, err = c.Enqueue(task, opts...)
 	if err != nil {
 		return err
 	}
