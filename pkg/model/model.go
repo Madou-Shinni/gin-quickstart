@@ -95,6 +95,29 @@ func (t LocalDate) MarshalJSON() ([]byte, error) {
 	return []byte(formatted), nil
 }
 
+func (t *LocalDate) UnmarshalJSON(data []byte) (err error) {
+	if string(data) == "null" {
+		return nil
+	}
+
+	if !strings.Contains(string(data), "T") {
+		loc, _ := time.LoadLocation("Asia/Shanghai")
+		now, err := time.ParseInLocation(`"2006-01-02"`, string(data), loc)
+		if err != nil {
+			return err
+		}
+		*t = LocalDate{Time: now}
+	} else {
+		parse, err := time.Parse(`"2006-01-02"`, string(data))
+		if err != nil {
+			return err
+		}
+		*t = LocalDate{Time: parse}
+	}
+
+	return
+}
+
 func (t LocalDate) Value() (driver.Value, error) {
 	var zeroTime time.Time
 	if t.Time.UnixNano() == zeroTime.UnixNano() {
