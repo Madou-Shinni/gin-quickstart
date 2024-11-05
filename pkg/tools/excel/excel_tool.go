@@ -12,10 +12,11 @@ import (
 type ExcelTool struct {
 	file                *excelize.File
 	sw                  *excelize.StreamWriter
-	model               interface{} // 结构体(head)
-	list                interface{} // 数据(body)
-	mergeConditionIndex int         // 合并条件（列下标从0开始，例如第一列相同则输入0）
-	mergeCols           []string    // 合并列
+	model               interface{}       // 结构体(head)
+	list                interface{}       // 数据(body)
+	mergeConditionIndex int               // 合并条件（列下标从0开始，例如第一列相同则输入0）
+	mergeCols           []string          // 合并列
+	TagCol              map[string]string // 结构体标签对应的列
 }
 
 func NewExcelTool(sheet string) *ExcelTool {
@@ -27,13 +28,16 @@ func NewExcelTool(sheet string) *ExcelTool {
 	}
 
 	return &ExcelTool{
-		file: file,
-		sw:   sw,
+		file:   file,
+		sw:     sw,
+		TagCol: make(map[string]string),
 	}
 }
 
 func (e *ExcelTool) WriteHead(data interface{}) *ExcelTool {
-	e.model = data
+	if e.model == nil {
+		e.model = data
+	}
 	return e
 }
 
@@ -174,6 +178,40 @@ func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interf
 		return errors.New("resolution of this data type is not supported")
 	}
 
+	return nil
+}
+
+func (e *ExcelTool) Model(m interface{}) *ExcelTool {
+	e.model = m
+	tp := reflect.ValueOf(e.model).Type().Elem() // 获得结构体的反射Type
+	numField := tp.NumField()                    // 获取结构体的字段数量
+	for i := 0; i < numField; i++ {
+		field := tp.Field(i)                 // 获取字段
+		tag := field.Tag.Get("excel")        // 获取tag中的ex值
+		e.TagCol[tag] = indexToColumnName(i) // 这是tag对应的列名
+	}
+
+	return e
+}
+
+func (e *ExcelTool) SetDropList(tagMap map[string][]string) error {
+	for t, list := range tagMap {
+		if _, ok := e.TagCol[t]; !ok {
+			return fmt.Errorf("tag %s not found", t)
+		}
+
+		dvRange := excelize.NewDataValidation(true)
+		s := e.TagCol[t]
+		dvRange.SetSqref(fmt.Sprintf("%s2:%s65535", s, s))
+		err := dvRange.SetDropList(list)
+		if err != nil {
+			return err
+		}
+		err = e.file.AddDataValidation("Sheet1", dvRange)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

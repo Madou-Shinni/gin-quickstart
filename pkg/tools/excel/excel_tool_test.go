@@ -1,6 +1,9 @@
 package excel
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 // 导出excel表，复杂类型给定string，业务上自己转换
 type Data struct {
@@ -68,4 +71,20 @@ func TestExcelTool_StreamWriteBodyWithMerge(t *testing.T) {
 		t.Error(err)
 		return
 	}
+}
+
+func TestExcelTool_SetDropList(t *testing.T) {
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
+		return
+	}
+	// 添加下拉选项 map key必须跟 excel表头一致
+	var dropList = make(map[string][]string)
+	dropList["年龄"] = []string{"18", "21"}
+	err := tool.Model(&Data{}).SetDropList(dropList)
+	assert.Equal(t, nil, err)
+	err = tool.Flush()
+	assert.Equal(t, nil, err)
+	tool.SaveAs("test.xlsx")
 }
