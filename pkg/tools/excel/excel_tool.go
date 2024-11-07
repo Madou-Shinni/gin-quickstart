@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"reflect"
+	"regexp"
 	"time"
 )
 
 type ExcelTool struct {
+	sheet               string
 	file                *excelize.File
 	sw                  *excelize.StreamWriter
 	model               interface{}       // 结构体(head)
@@ -28,6 +30,7 @@ func NewExcelTool(sheet string) *ExcelTool {
 	}
 
 	return &ExcelTool{
+		sheet:  sheet,
 		file:   file,
 		sw:     sw,
 		TagCol: make(map[string]string),
@@ -207,7 +210,42 @@ func (e *ExcelTool) SetDropList(tagMap map[string][]string) error {
 		if err != nil {
 			return err
 		}
-		err = e.file.AddDataValidation("Sheet1", dvRange)
+		err = e.file.AddDataValidation(e.sheet, dvRange)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *ExcelTool) SetDropListPro(tagMap map[string][]string) error {
+	for t, list := range tagMap {
+		if _, ok := e.TagCol[t]; !ok {
+			return fmt.Errorf("tag %s not found", t)
+		}
+
+		// 创建一个工作表用于存储选项(需要删除()，不然下拉列表会出现问题 )
+		re := regexp.MustCompile(`\(.+?\)`) // 匹配括号及其中的内容
+		result := re.ReplaceAllString(t, "")
+		optionsSheet := result
+		_, err := e.file.NewSheet(optionsSheet)
+		if err != nil {
+			return err
+		}
+		for i, s := range list {
+			cell, _ := excelize.CoordinatesToCellName(1, i+1)
+			err = e.file.SetCellValue(optionsSheet, cell, s)
+			if err != nil {
+				return err
+			}
+		}
+
+		dvRange := excelize.NewDataValidation(true)
+		s := e.TagCol[t]
+		dvRange.SetSqref(fmt.Sprintf("%s2:%s65535", s, s))
+		dvRange.SetSqrefDropList(fmt.Sprintf("%s!$A$1:$A$%d", optionsSheet, 2000))
+
+		err = e.file.AddDataValidation(e.sheet, dvRange)
 		if err != nil {
 			return err
 		}
