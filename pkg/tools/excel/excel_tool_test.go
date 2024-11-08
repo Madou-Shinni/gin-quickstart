@@ -136,49 +136,34 @@ func TestExcelTool_SetDropList(t *testing.T) {
 
 func TestExcelTool_SetDropListPro(t *testing.T) {
 	// 创建一个文件流
-	ex := excelize.NewFile()
-	streamWriter, _ := ex.NewStreamWriter("Sheet1")
-
-	// 设置选项
-	optionsSheet := "demo"
-	ex.NewSheet(optionsSheet)
-	var dropList []string
-	for i := 0; i < 2000; i++ {
-		if len(dropList) < 10 {
-			dropList = append(dropList, fmt.Sprintf("%d", i+1))
-		}
-		cell1, _ := excelize.CoordinatesToCellName(1, i+1)
-		err := ex.SetCellValue(optionsSheet, cell1, i+1)
-		assert.Equal(t, nil, err)
-	}
-
-	// 普通
-	dvRange := excelize.NewDataValidation(true)
-	dvRange.SetSqref(fmt.Sprintf("%s2:%s65535", "B", "B"))
-	err := dvRange.SetDropList(dropList)
-	t.Log(len(dropList))
-	assert.Equal(t, nil, err)
-	err = ex.AddDataValidation("Sheet1", dvRange)
-	assert.Equal(t, nil, err)
-
-	// 突破限制
-	validation := excelize.NewDataValidation(true)
-	validation.SetSqref("A2:A65535")
-	validation.SetSqrefDropList(fmt.Sprintf("%s!$A$1:$A$%d", optionsSheet, 2000))
-	err = ex.AddDataValidation("Sheet1", validation)
-	assert.Equal(t, nil, err)
-
-	// 写入表头
-	cell, _ := excelize.CoordinatesToCellName(1, 1)
-	streamWriter.SetRow(cell, []interface{}{"选项", "下拉列表"})
-	// 保存文件到流
-	if err := streamWriter.Flush(); err != nil {
-		fmt.Println(err)
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
 		return
 	}
 
+	tool.Model(&Data{})
+
+	tool.SetDropList(map[string][]string{
+		"姓名": {"张三", "李四", "王五"},
+	})
+
+	// 设置选项
+	var dropList []string
+	for i := 0; i < 2000; i++ {
+		dropList = append(dropList, fmt.Sprintf("%d", i+1))
+	}
+
+	tool.SetDropListPro(map[string][]string{
+		"年龄": dropList,
+	})
+
+	// Flush
+	err := tool.Flush()
+	assert.Equal(t, nil, err)
+
 	// 将文件流保存到磁盘
-	if err := ex.SaveAs("test.xlsx"); err != nil {
+	if err := tool.SaveAs("test.xlsx"); err != nil {
 		fmt.Println(err)
 		return
 	}

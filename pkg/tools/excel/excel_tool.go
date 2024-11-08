@@ -243,7 +243,7 @@ func (e *ExcelTool) SetDropListPro(tagMap map[string][]string) error {
 		dvRange := excelize.NewDataValidation(true)
 		s := e.TagCol[t]
 		dvRange.SetSqref(fmt.Sprintf("%s2:%s65535", s, s))
-		dvRange.SetSqrefDropList(fmt.Sprintf("%s!$A$1:$A$%d", optionsSheet, 2000))
+		dvRange.SetSqrefDropList(fmt.Sprintf("%s!$A$1:$A$%d", optionsSheet, len(list)))
 
 		err = e.file.AddDataValidation(e.sheet, dvRange)
 		if err != nil {
