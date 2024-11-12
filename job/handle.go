@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
+	"github.com/Madou-Shinni/go-logger"
 	"github.com/hibiken/asynq"
 )
 
@@ -16,4 +17,10 @@ func handleSmsSend(ctx context.Context, task *asynq.Task) error {
 	}
 
 	return service.SmsSend(payload.PhoneNumber, payload.SignName, payload.TemplateCode, payload.TemplateParams)
+}
+
+func handleTaskTest(ctx context.Context, task *asynq.Task) error {
+	// 这里可以添加任务测试的逻辑
+	logger.Info("handleTaskTest")
+	return nil
 }

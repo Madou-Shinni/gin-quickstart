@@ -7,8 +7,10 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/go-logger"
 	"github.com/hibiken/asynq"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"log"
+	"strings"
 )
 
 func RunConsumer() {
@@ -28,7 +30,11 @@ func RunConsumer() {
 
 	mux := asynq.NewServeMux()
 
+	// 异步任务
 	mux.HandleFunc(constants.QueueSms, handleSmsSend)
+
+	// 定时任务
+	mux.HandleFunc(constants.TaskTest, handleTaskTest)
 
 	if err := srv.Run(mux); err != nil {
 		log.Fatalf("could not run server: %v", err)
@@ -38,6 +44,10 @@ func RunConsumer() {
 func errHandlerFunc(ctx context.Context, task *asynq.Task, err error) {
 	retried, _ := asynq.GetRetryCount(ctx)
 	maxRetry, _ := asynq.GetMaxRetry(ctx)
+	if strings.Contains(task.Type(), "task") {
+		err = errors.Wrapf(err, "定时任务执行失败 %d 次 err", retried)
+	}
+
 	if retried >= maxRetry {
 		id, ok := asynq.GetTaskID(ctx)
 		if !ok {

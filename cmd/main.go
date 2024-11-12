@@ -4,6 +4,7 @@ package main
 import (
 	"github.com/Madou-Shinni/gin-quickstart/initialize"
 	"github.com/Madou-Shinni/gin-quickstart/job"
+	"github.com/Madou-Shinni/gin-quickstart/task"
 	"github.com/Madou-Shinni/go-logger"
 	"log"
 	"os"
@@ -23,7 +24,7 @@ func main() {
 	// 启动服务(使用goroutine解决服务启动时程序阻塞问题)
 	go initialize.RunServer()
 	go job.RunConsumer()
-
+	go task.V2Init()
 	// 监听信号
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
