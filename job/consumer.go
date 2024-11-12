@@ -44,15 +44,16 @@ func RunConsumer() {
 func errHandlerFunc(ctx context.Context, task *asynq.Task, err error) {
 	retried, _ := asynq.GetRetryCount(ctx)
 	maxRetry, _ := asynq.GetMaxRetry(ctx)
+	id, ok := asynq.GetTaskID(ctx)
+	if !ok {
+		id = "unknown"
+	}
+
 	if strings.Contains(task.Type(), "task") {
-		err = errors.Wrapf(err, "定时任务执行失败 %d 次 err", retried)
+		err = errors.Wrapf(err, "%s task id [%s] 定时任务执行失败 %d 次 err", task.Type(), id, retried)
 	}
 
 	if retried >= maxRetry {
-		id, ok := asynq.GetTaskID(ctx)
-		if !ok {
-			id = "unknown"
-		}
 		err = fmt.Errorf("retry exhausted for job %s, task id [%s] err: %w", task.Type(), id, err)
 	}
 	//errorReportingService. Notify(err)
