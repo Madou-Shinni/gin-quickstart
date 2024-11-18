@@ -8,7 +8,7 @@ app:
   log-file: ./logs/gin-quickstart.log
 # 数据库
 mysql:
-  host: "127.0.0.1"
+  host: "mysql"
   port: 3306
   user: "root"
   password: "123456"
@@ -17,12 +17,12 @@ mysql:
   min-idle-conn: 5
 # redis
 redis:
-  addr: "127.0.0.1:6379"
+  addr: "redis:6379"
   password: ""
   db: 0
 # asynq
 asynq:
-  addr: "127.0.0.1:6379"
+  addr: "redis:6379"
   password: ""
   db: 1
 # 短信
