@@ -1,5 +1,5 @@
 # 基础镜像
-FROM golang:1.20 AS builder
+FROM golang:1.23 AS builder
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
