@@ -116,15 +116,34 @@ func (s *SysMenuService) RoleList(ctx context.Context, rid uint) ([]domain.SysMe
 		return nil, err
 	}
 
-	for i, v := range list {
-		tree, err := s.GetMenuTree(global.DB.WithContext(ctx), v.ID)
-		if err != nil {
-			return nil, err
-		}
-		list[i].Children = tree
+	// 构建树形菜单
+	result := buildTreeMenu(list, 0)
+
+	return result, nil
+}
+
+// 转换为树形菜单
+func buildTreeMenu(menus []domain.SysMenu, parentID uint) []domain.SysMenu {
+	var tree []domain.SysMenu
+	menuMap := make(map[uint][]domain.SysMenu)
+
+	// 按 parent_id 分组
+	for _, v := range menus {
+		menuMap[v.ParentID] = append(menuMap[v.ParentID], v)
 	}
 
-	return list, nil
+	// 递归构建树
+	var build func(parentID uint) []domain.SysMenu
+	build = func(parentID uint) []domain.SysMenu {
+		children := menuMap[parentID]
+		for i, child := range children {
+			children[i].Children = build(child.ID) // 递归查找子节点
+		}
+		return children
+	}
+
+	tree = build(parentID)
+	return tree
 }
 
 func (s *SysMenuService) SetRoleList(ctx context.Context, sysRole domain.SysRole) error {
