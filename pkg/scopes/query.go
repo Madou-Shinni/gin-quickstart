@@ -11,6 +11,9 @@ import (
 func Paginate(page request.PageSearch) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		// 翻页
+		if page.NoPage {
+			return db
+		}
 		offset, limit := pagelimit.OffsetLimit(page.PageNum, page.PageSize)
 		return db.Offset(offset).Limit(limit)
 	}

@@ -3,6 +3,7 @@ package request
 type PageSearch struct {
 	PageNum  int64  `json:"pageNum,omitempty" form:"pageNum"`   // 页码
 	PageSize int64  `json:"pageSize,omitempty" form:"pageSize"` // 每页显示数量
+	NoPage   bool   `json:"noPage,omitempty" form:"noPage"`     // 是否不进行分页
 	Keyword  string `json:"keyword,omitempty" form:"keyword"`   // 关键词
 }
 
