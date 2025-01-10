@@ -19,6 +19,7 @@ import (
 const (
 	defaultSkipFrames = 4
 	defaultMaxPC      = 4
+	maxBodyLength     = 1024 // 最大打印长度
 )
 
 // GinLogger 接收gin框架默认的日志
@@ -43,9 +44,14 @@ func GinLogger() gin.HandlerFunc {
 		if strings.Contains(c.ContentType(), "application/json") {
 			defer c.Request.Body.Close()
 			body, _ := ioutil.ReadAll(c.Request.Body)
+			// 如果请求体长度大于设定的最大限制，截取前 MaxBodyLength 个字符
+			if len(body) > maxBodyLength {
+				bodyStr = string(body[:maxBodyLength])
+			} else {
+				bodyStr = string(body)
+			}
 			//注意：重新赋值必须这样否则无法从context重在获取数据
 			c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-			bodyStr += string(body)
 		}
 
 		c.Next()
