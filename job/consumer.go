@@ -51,6 +51,8 @@ func errHandlerFunc(ctx context.Context, task *asynq.Task, err error) {
 
 	if strings.Contains(task.Type(), "task") {
 		err = errors.Wrapf(err, "%s task id [%s] 定时任务执行失败 %d 次 err", task.Type(), id, retried)
+		logger.Error("定时任务执行失败", zap.Error(err))
+		return
 	}
 
 	if retried >= maxRetry {
