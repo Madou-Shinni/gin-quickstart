@@ -170,3 +170,23 @@ func TestExcelTool_SetDropListPro(t *testing.T) {
 
 	fmt.Println("Excel 创建完成")
 }
+
+func TestExcelTool_Remark(t *testing.T) {
+	// 创建一个文件流
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
+		return
+	}
+
+	err := tool.Model(&Data{}).Remark(`填写说明:
+1.请仔细阅读本填写说明，若填写不符合规则，将导致数据导入失败
+`).Flush()
+	assert.Equal(t, nil, err)
+
+	// 将文件流保存到磁盘
+	if err := tool.SaveAs("test.xlsx"); err != nil {
+		t.Log(err)
+		return
+	}
+}

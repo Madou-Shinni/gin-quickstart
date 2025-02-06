@@ -7,6 +7,7 @@ import (
 	"github.com/xuri/excelize/v2"
 	"reflect"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type ExcelTool struct {
 	list                interface{}       // 数据(body)
 	mergeConditionIndex int               // 合并条件（列下标从0开始，例如第一列相同则输入0）
 	mergeCols           []string          // 合并列
+	remark              string            // 备注(A1单元格)
 	TagCol              map[string]string // 结构体标签对应的列
 }
 
@@ -49,6 +51,16 @@ func (e *ExcelTool) WriteBody(list interface{}) *ExcelTool {
 	return e
 }
 
+// Remark 备注
+// mergeEndCell 合并结束单元格
+func (e *ExcelTool) Remark(remark string) *ExcelTool {
+	e.remark = remark
+	return e
+}
+
+// MergeCols 合并列
+// headCondition 合并条件 excel标签
+// mergeHeads 合并列 被合并的excel标签
 func (e *ExcelTool) MergeCols(headCondition string, mergeHeads ...string) *ExcelTool {
 	e.mergeConditionIndex = e.headToMergeConditionIndex(headCondition)
 	e.mergeCols = e.headToCols(mergeHeads...)
@@ -97,17 +109,72 @@ func (e *ExcelTool) headToMergeConditionIndex(head string) int {
 }
 
 func (e *ExcelTool) Flush() error {
-	err := StreamWriteHead(e.sw, e.model)
-	if err != nil {
+	if err := e.setRemark(); err != nil {
+		return err
+	}
+	if err := e.StreamWriteHead(e.sw, e.model); err != nil {
 		return err
 	}
 	if e.list != nil {
-		err = e.StreamWriteBodyWithMerge(e.sw, e.list, e.mergeConditionIndex, e.mergeCols)
+		err := e.StreamWriteBodyWithMerge(e.sw, e.list, e.mergeConditionIndex, e.mergeCols)
 		if err != nil {
 			return err
 		}
 	}
 	return e.sw.Flush()
+}
+
+func (e *ExcelTool) setRemark() error {
+	if e.remark == "" {
+		return nil
+	}
+	if err := e.sw.MergeCell("A1", "Z1"); err != nil {
+		return err
+	}
+
+	// 文字靠左顶部对其
+	style := &excelize.Style{
+		Alignment: &excelize.Alignment{
+			Horizontal: "left",
+			Vertical:   "top",
+		},
+	}
+	h := 16
+	newStyle, err := e.file.NewStyle(style)
+	if err != nil {
+		return err
+	}
+
+	// 查询remark有多少个换行符
+	h = h * strings.Count(e.remark, "\n")
+	if h > 100 {
+		h = 100
+	}
+
+	return e.sw.SetRow(fmt.Sprintf("A%d", 1), []interface{}{e.remark}, excelize.RowOpts{Height: float64(h), StyleID: newStyle})
+}
+
+func (e *ExcelTool) StreamWriteHead(sw *excelize.StreamWriter, data interface{}) error {
+	row := 1
+	if e.remark != "" {
+		// 第一行备注
+		row++
+	}
+
+	settingSlice := ParseExcelTag(data)
+	rows := make([]interface{}, len(settingSlice)) // 创建一个切片，表示一行数据
+	for i := range settingSlice {
+		rows[i] = excelize.Cell{
+			Value: settingSlice[i].Head,
+		}
+	}
+	// 列名都是从列号1开始；行号从1开始
+	axis, err := excelize.CoordinatesToCellName(1, row)
+	if err != nil {
+		return err
+	}
+	// 流式写入行，并指定高度
+	return sw.SetRow(axis, rows, excelize.RowOpts{Height: 16})
 }
 
 func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interface{}, mergeConditionIndex int, mergeCols []string) error {
@@ -139,6 +206,10 @@ func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interf
 		}
 
 		row := 2
+		if e.remark != "" {
+			row++
+		}
+
 		var mergeStarted bool
 		var mergeStartedRow, mergeEndedRow int
 		for i := range data {
@@ -263,6 +334,7 @@ func (e *ExcelTool) SaveAs(filename string) error {
 
 // ReturnEmptyIfPointerIsNil 空指针则返回""
 func ReturnEmptyIfPointerIsNil(ptr interface{}) string {
+	// 检查输入是否为指针类型
 	value := reflect.ValueOf(ptr)
 	if value.Kind() != reflect.Ptr {
 		return fmt.Sprintf("%v", ptr)
@@ -273,15 +345,24 @@ func ReturnEmptyIfPointerIsNil(ptr interface{}) string {
 		return ""
 	}
 
-	// 使用 Elem() 获取指针指向的值
-	if value.Elem().Kind() == reflect.Invalid {
-		return "" // 处理空值的情况
+	// 获取指针指向的值
+	elem := value.Elem()
+	if !elem.IsValid() {
+		return "" // 处理无效值的情况
 	}
 
-	// 处理时间指向类型
+	// 特殊处理时间类型
 	if value.Type() == reflect.TypeOf(&time.Time{}) {
-		return fmt.Sprintf("%v", reflect.ValueOf(ptr).Elem().Interface().(time.Time).Format("2006-01-02 15:04:05"))
+		return elem.Interface().(time.Time).Format("2006-01-02 15:04:05")
 	}
 
-	return fmt.Sprintf("%v", reflect.ValueOf(ptr).Elem().Interface())
+	// 处理自定义类型
+	if elem.Kind() == reflect.Struct {
+		if stringer, ok := elem.Interface().(fmt.Stringer); ok {
+			return stringer.String() // 如果实现了 fmt.Stringer 接口，调用其 String 方法
+		}
+	}
+
+	// 处理其他类型
+	return fmt.Sprintf("%v", elem.Interface())
 }
