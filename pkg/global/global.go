@@ -28,6 +28,12 @@ type contextTxKey struct{}
 
 // Tx gorm Transaction
 func (d *Data) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	if tx, ok := ctx.Value(contextTxKey{}).(*gorm.DB); ok {
+		// 嵌套事务处理
+		return tx.Transaction(func(tx *gorm.DB) error {
+			return fn(ctx)
+		})
+	}
 	return d.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		ctx = context.WithValue(ctx, contextTxKey{}, tx)
 		return fn(ctx)
