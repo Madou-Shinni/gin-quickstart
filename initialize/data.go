@@ -1,9 +1,11 @@
 package initialize
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/message_queue"
+	"github.com/redis/go-redis/v9"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,7 +14,6 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-redis/redis"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
@@ -91,7 +92,8 @@ func MysqlInit(config *conf.MysqlConfig) {
 		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
 		config.User, config.Password, config.Host, config.Port, config.DBName)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		QueryFields: true, //打印sql
+		QueryFields:                              true, // 打印sql
+		DisableForeignKeyConstraintWhenMigrating: true, // 禁用外键约束
 		//SkipDefaultTransaction: true, //禁用事务
 	})
 
@@ -123,6 +125,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 
 // redis连接初始化
 func RedisInit(config *conf.RedisConfig) {
+	ctx := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     config.Addr,
 		Password: config.Password,
@@ -130,7 +133,7 @@ func RedisInit(config *conf.RedisConfig) {
 		PoolSize: 8,
 	})
 
-	_, err := rdb.Ping().Result()
+	_, err := rdb.Ping(ctx).Result()
 	if err != nil {
 		log.Println(err)
 		return
@@ -147,11 +150,12 @@ func ProducerInit(config *conf.AsynqConfig) {
 
 // 释放资源
 func Close() {
-	if global.Rdb == nil {
-		return
+	if global.Rdb != nil {
+		global.Rdb.Close()
 	}
-	global.Rdb.Close()
-	global.Producer.Close()
+	if global.Producer != nil {
+		global.Producer.Close()
+	}
 }
 
 // 获取目录下所有的yaml文件

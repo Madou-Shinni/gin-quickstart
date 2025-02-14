@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/sms"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/message_queue"
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 

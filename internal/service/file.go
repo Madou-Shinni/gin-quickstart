@@ -125,6 +125,7 @@ func (s *FileService) UploadChunk(ctx context.Context, file domain.File, fileHea
 
 	// 查询分片是否已经上传
 	flag := global.Rdb.HGet(
+		ctx,
 		fmt.Sprintf(constant.FileChunkHkey+strconv.FormatInt(file.ID, 10)),
 		fmt.Sprintf(constant.FileChunkHFiled+strconv.Itoa(file.Index)),
 	).Val()
@@ -142,6 +143,7 @@ func (s *FileService) UploadChunk(ctx context.Context, file domain.File, fileHea
 	} else {
 		// redis 记录分片文件信息
 		global.Rdb.HSet(
+			ctx,
 			fmt.Sprintf(constant.FileChunkHkey+strconv.FormatInt(file.ID, 10)),
 			fmt.Sprintf(constant.FileChunkHFiled+strconv.Itoa(file.Index)),
 			"1")
@@ -178,7 +180,8 @@ func (s *FileService) MergeChunk(ctx context.Context, file domain.File) (domain.
 
 	// 查询所有分片是否上传完成
 	chunkMap := global.Rdb.HGetAll(
-		fmt.Sprintf(constant.FileChunkHkey + strconv.FormatInt(file.ID, 10)),
+		ctx,
+		fmt.Sprintf(constant.FileChunkHkey+strconv.FormatInt(file.ID, 10)),
 	).Val()
 	if len(chunkMap) < file.TotalChunk {
 		// 分片未上传完成，无法合并
@@ -198,7 +201,7 @@ func (s *FileService) MergeChunk(ctx context.Context, file domain.File) (domain.
 	if err != nil {
 		logger.Error("删除分片文件失败", zap.Error(err))
 	}
-	global.Rdb.Del(fmt.Sprintf(constant.FileChunkHkey + strconv.FormatInt(file.ID, 10)))
+	global.Rdb.Del(ctx, fmt.Sprintf(constant.FileChunkHkey+strconv.FormatInt(file.ID, 10)))
 
 	// 返回文件地址
 	file.FilePath = dst

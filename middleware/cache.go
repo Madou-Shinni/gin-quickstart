@@ -17,6 +17,7 @@ const cacheExpire = time.Second * 100
 
 func Cache(ca cache.Cache) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		ctx := c.Request.Context()
 		pre := c.Request.URL.Path
 		key := pre + md5.Md5To16(c.Request.RequestURI)
 
@@ -25,7 +26,7 @@ func Cache(ca cache.Cache) gin.HandlerFunc {
 
 		if c.Request.Method == "GET" {
 			// 获取缓存
-			res, err := ca.Get(key)
+			res, err := ca.Get(ctx, key)
 			if err != nil || res == "" {
 				// 缓存空
 				c.Next()
@@ -36,7 +37,7 @@ func Cache(ca cache.Cache) gin.HandlerFunc {
 					// 不设置缓存
 					return
 				}
-				err = ca.Set(key, resp.Data, cacheExpire)
+				err = ca.Set(ctx, key, resp.Data, cacheExpire)
 				if err != nil {
 					logger.Error("cache err", zap.Error(err))
 				}
@@ -51,7 +52,7 @@ func Cache(ca cache.Cache) gin.HandlerFunc {
 		} else {
 			// 删除缓存
 			c.Next()
-			err := ca.DelByPrefix(pre)
+			err := ca.DelByPrefix(ctx, pre)
 			if err != nil {
 				logger.Error("cache err", zap.Error(err))
 			}
