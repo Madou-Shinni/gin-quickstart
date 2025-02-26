@@ -7,8 +7,9 @@ import (
 
 type Demo struct {
 	model.Model
-	//F string `json:"f" binding:"required"`
-	//N string `json:"n" binding:"required"`
+	Name     string           `json:"name"`
+	Age      int              `json:"age"`
+	BirthDay *model.LocalTime `json:"birth_day"`
 }
 
 type PageDemoSearch struct {
