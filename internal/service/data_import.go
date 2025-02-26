@@ -6,6 +6,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/constants"
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/response"
@@ -130,6 +131,18 @@ func (s *DataImportService) Template(ctx context.Context, req DataImportTemplate
 	//tool.SaveAs(fmt.Sprintf("%s_%s.xlsx", req.Category, uuid.NewString()))
 
 	return buffer.Bytes(), nil
+}
+
+func (s *DataImportService) Import(ctx context.Context, req domain.DataImport) (interface{}, error) {
+	if err := global.DB.WithContext(ctx).Create(&req).Error; err != nil {
+		return nil, err
+	}
+	err := global.Producer.NewTask(constants.QueueDataImport, req)
+	if err != nil {
+		global.DB.WithContext(ctx).Model(&req).Update("status", constants.DataImportStatusFailed)
+		return nil, err
+	}
+	return nil, nil
 }
 
 func demoExcelTpl(ctx context.Context, tool *excel.ExcelTool) error {

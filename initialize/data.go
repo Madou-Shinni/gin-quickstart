@@ -109,6 +109,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 	// 自动迁移
 	db.AutoMigrate(
 		// 表
+		domain.Demo{},
 		domain.File{},
 		domain.SysUser{},
 		domain.SysRole{},

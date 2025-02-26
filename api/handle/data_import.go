@@ -210,3 +210,29 @@ func (cl *DataImportHandle) Template(c *gin.Context) {
 
 	response.Success(c, res)
 }
+
+// Import 导入数据
+// @Tags     DataImport
+// @Summary  导入数据
+// @accept   application/json
+// @Produce  application/json
+// @Security ApiKeyAuth
+// @Param    data body     domain.DataImport true "导入数据"
+// @Success  200  {string} string            "{"code":200,"msg":"导入数据成功","data":{}"}"
+// @Router   /dataImport/import [post]
+func (cl *DataImportHandle) Import(c *gin.Context) {
+	var DataImport domain.DataImport
+	if err := c.ShouldBindJSON(&DataImport); err != nil {
+		response.Error(c, constant.CODE_INVALID_PARAMETER, err.Error())
+		return
+	}
+
+	res, err := cl.s.Import(c.Request.Context(), DataImport)
+
+	if err != nil {
+		response.Error(c, constant.CODE_ADD_FAILED, err.Error())
+		return
+	}
+
+	response.Success(c, res)
+}

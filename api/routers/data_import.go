@@ -17,6 +17,7 @@ func DataImportRouterRegister(r *gin.RouterGroup) {
 		dataImportGroup.GET("/:id", dataImportHandle.Find)
 		dataImportGroup.GET("/list", dataImportHandle.List)
 		dataImportGroup.GET("/template", dataImportHandle.Template)
+		dataImportGroup.POST("/import", dataImportHandle.Import)
 		dataImportGroup.PUT("", dataImportHandle.Update)
 	}
 }

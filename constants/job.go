@@ -1,7 +1,8 @@
 package constants
 
 const (
-	QueueSms = "queue:sms"
+	QueueSms        = "queue:sms"
+	QueueDataImport = "queue:import"
 )
 
 const (

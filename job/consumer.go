@@ -32,6 +32,7 @@ func RunConsumer() {
 
 	// 异步任务
 	mux.HandleFunc(constants.QueueSms, handleSmsSend)
+	mux.HandleFunc(constants.QueueDataImport, handleImportData)
 
 	// 定时任务
 	mux.HandleFunc(constants.TaskTest, handleTaskTest)
