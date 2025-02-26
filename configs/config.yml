@@ -13,8 +13,8 @@ mysql:
   user: "root"
   password: "123456"
   dbname: "go-shop-server"
-  max-idle-conn: 10
-  min-idle-conn: 5
+  max-open-conns: 10
+  max-idle-conns: 5
 # redis
 redis:
   addr: "redis:6379"
