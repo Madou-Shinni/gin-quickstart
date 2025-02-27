@@ -42,6 +42,13 @@ type AsynqConfig struct {
 	Addr     string `mapstructure:"addr"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
+	Monitor  struct {
+		Username string `mapstructure:"username"`
+		Password string `mapstructure:"password"`
+		Enable   bool   `mapstructure:"enable"`
+		RootPath string `mapstructure:"root-path"`
+		Readonly bool   `mapstructure:"readonly"`
+	} `mapstructure:"monitor"`
 }
 
 // jwt配置

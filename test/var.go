@@ -7,6 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
 )
 
 var (
@@ -37,6 +38,17 @@ var (
 	db  *global.Data
 	rdb *redis.Client
 )
+
+func setup() {
+	db = getDB()
+	rdb = getRdb()
+	log.Println("> setup completed")
+}
+
+func teardown() {
+	rdb.Close()
+	log.Println("> teardown completed")
+}
 
 func getDB() *global.Data {
 	dsn := fmt.Sprintf(

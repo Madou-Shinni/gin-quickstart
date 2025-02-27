@@ -52,7 +52,7 @@ func (s *DemoRepo) List(ctx context.Context, page domain.PageDemoSearch) ([]doma
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch)).Find(&demoList).Error
+	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch), scopes.OrderBy(page.OrderBy)).Find(&demoList).Error
 
 	return demoList, count, err
 }

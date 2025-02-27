@@ -5,6 +5,7 @@ type PageSearch struct {
 	PageSize int64  `json:"pageSize,omitempty" form:"pageSize"` // 每页显示数量
 	NoPage   bool   `json:"noPage,omitempty" form:"noPage"`     // 是否不进行分页
 	Keyword  string `json:"keyword,omitempty" form:"keyword"`   // 关键词
+	OrderBy  string `json:"orderBy,omitempty" form:"orderBy"`   // 排序字段
 }
 
 type Ids struct {

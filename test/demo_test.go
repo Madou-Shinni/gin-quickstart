@@ -5,22 +5,10 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/model"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"os"
 	"testing"
 	"time"
 )
-
-func setup() {
-	db = getDB()
-	rdb = getRdb()
-	log.Println("> setup completed")
-}
-
-func teardown() {
-	rdb.Close()
-	log.Println("> teardown completed")
-}
 
 func TestMain(m *testing.M) {
 	setup()

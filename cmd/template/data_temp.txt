@@ -53,7 +53,7 @@ func (s *{{.Module}}Repo) List(ctx context.Context, page domain.Page{{.Module}}S
 
 	// TODO：条件过滤
 
-	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch)).Find(&{{.ModuleLower}}List).Error
+	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch), scopes.OrderBy(page.OrderBy)).Find(&{{.ModuleLower}}List).Error
 
 	return {{.ModuleLower}}List, count, err
 }

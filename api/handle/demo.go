@@ -156,7 +156,7 @@ func (cl *DemoHandle) Find(c *gin.Context) {
 // @Summary  查询Demo列表
 // @accept   application/json
 // @Produce  application/json
-// @Param    data query     domain.Demo true "查询Demo列表"
+// @Param    data query     domain.PageDemoSearch true "查询Demo列表"
 // @Success  200  {string} string            "{"code":200,"msg":"查询成功","data":{}"}"
 // @Router   /demo/list [get]
 func (cl *DemoHandle) List(c *gin.Context) {

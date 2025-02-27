@@ -2,17 +2,18 @@ package initialize
 
 import (
 	"fmt"
-	"github.com/Madou-Shinni/go-logger"
-	"log"
-
 	"github.com/Madou-Shinni/gin-quickstart/api/routers"
 	_ "github.com/Madou-Shinni/gin-quickstart/docs"
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/gin-quickstart/middleware"
+	"github.com/Madou-Shinni/go-logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
+	"github.com/hibiken/asynqmon"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"log"
 )
 
 // RunServer 启动服务
@@ -31,6 +32,18 @@ func RunServer() {
 
 	// 跨域
 	r.Use(cors.Default())
+
+	// 队列监控
+	asynqConfig := conf.Conf.AsynqConfig
+	amconfig := asynqConfig.Monitor
+	if amconfig.Enable {
+		h := asynqmon.New(asynqmon.Options{
+			RootPath:     amconfig.RootPath, // RootPath specifies the root for asynqmon app
+			RedisConnOpt: asynq.RedisClientOpt{Addr: asynqConfig.Addr, Password: asynqConfig.Password, DB: asynqConfig.DB},
+			ReadOnly:     amconfig.Readonly,
+		})
+		r.GET(h.RootPath()+"/*any", middleware.UnameAndPwdAuth(), gin.WrapH(h))
+	}
 
 	// 缓存
 	//r.Use(middleware.Cache(cache.NewRdbCache(global.Rdb)))

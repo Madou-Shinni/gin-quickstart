@@ -25,6 +25,17 @@ asynq:
   addr: "redis:6379"
   password: ""
   db: 1
+  # 是否开启监控
+  monitor:
+    # 认证信息（可以在浏览器安装插件ModHeader在请求头中添加认证信息）
+    username: "admin"
+    password: "U3og32tmtKAv8LQGmFPQ"
+    # 是否开启
+    enable: true
+    # RootPath
+    root-path: "/monitoring"
+    # 是否只读
+    readonly: false
 # 短信
 sms:
   sms_server: https://xxxx
