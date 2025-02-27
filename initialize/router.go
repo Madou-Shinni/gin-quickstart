@@ -42,7 +42,7 @@ func RunServer() {
 			RedisConnOpt: asynq.RedisClientOpt{Addr: asynqConfig.Addr, Password: asynqConfig.Password, DB: asynqConfig.DB},
 			ReadOnly:     amconfig.Readonly,
 		})
-		r.GET(h.RootPath()+"/*any", middleware.UnameAndPwdAuth(), gin.WrapH(h))
+		r.Any(h.RootPath()+"/*any", middleware.UnameAndPwdAuth(), gin.WrapH(h))
 	}
 
 	// 缓存
