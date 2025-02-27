@@ -9,6 +9,7 @@ type ProfileInfo struct {
 	*JwtConfig    `mapstructure:"jwt"`
 	*UploadConfig `mapstructure:"upload"`
 	*AsynqConfig  `mapstructure:"asynq"`
+	*SMSConfig    `mapstructure:"sms"`
 }
 
 // 系统配置
@@ -62,4 +63,12 @@ type JwtConfig struct {
 // UploadConfig 文件上传配置
 type UploadConfig struct {
 	Dir string `mapstructure:"dir"`
+}
+
+// SMS配置
+type SMSConfig struct {
+	SmsServer       string `mapstructure:"sms_server"`
+	SmsSendPath     string `mapstructure:"sms_send_path"`
+	SmsToken        string `mapstructure:"sms_token"`
+	SmsVerifyExpire int    `mapstructure:"sms_verify_expire"`
 }
