@@ -8,6 +8,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/service"
 	"github.com/Madou-Shinni/go-logger"
 	"github.com/hibiken/asynq"
+	"go.uber.org/zap"
 )
 
 func handleSmsSend(ctx context.Context, task *asynq.Task) error {
@@ -27,6 +28,13 @@ func handleTaskTest(ctx context.Context, task *asynq.Task) error {
 }
 
 func handleImportData(ctx context.Context, task *asynq.Task) error {
+	// 捕获异常 导入数据错误不进入asynq存档,避免存档负载过大
+	defer func() {
+		if err := recover(); err != nil {
+			logger.Error("导入数据异常", zap.Any("err", err))
+		}
+	}()
+
 	var payload domain.DataImport
 	err := json.Unmarshal(task.Payload(), &payload)
 	if err != nil {
@@ -36,6 +44,10 @@ func handleImportData(ctx context.Context, task *asynq.Task) error {
 	switch payload.Category {
 	case constants.DataImportCategoryDemo:
 		err = importDemo(ctx, payload)
+	}
+
+	if err != nil {
+		panic(err)
 	}
 
 	return err
