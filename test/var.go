@@ -42,6 +42,8 @@ var (
 func setup() {
 	db = getDB()
 	rdb = getRdb()
+	global.DB = db
+	global.Rdb = rdb
 	log.Println("> setup completed")
 }
 

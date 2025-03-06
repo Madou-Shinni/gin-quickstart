@@ -1,117 +1,125 @@
-# github.com/Madou-Shinni/gin-quickstart
+# 智能骑手分配系统
 
-## 目录结构
-```shell
-├─api // 接口
-│  ├─handle // 接口处理函数类似controller
-│  └─routers // 路由
-├─cmd // 程序主入口
-├─configs // 配置文件
-├─docs // 生成的接口文档
-├─initialize // 初始化配置信息
-├─internal // 该服务所有不对外暴露的代码，通常的业务逻辑都在这下面，使用internal避免错误引用
-│  ├─conf // 内部使用的config的结构定义，将文件配置反序列化到结构体
-│  ├─data // 业务数据访问 持久层
-│  ├─domain // 实体类
-│  └─service // 业务层
-├─middleware // 中间件
-└─pkg // 外部依赖
-    ├─constant // 常量
-    ├─global // 全局变量
-    ├─model // 公共model
-    ├─request // 请求参数
-    ├─response // 返回参数
-    └─tools // 工具包
-        ├─jwt // jwt工具
-        ├─letter // 生成随机字母工具
-        ├─pagelimit // 将page参数转化为数据库的offset和limit工具
-        └─snowflake // 雪花算法工具
-```
+## 需求规则
 
-## 快速开始
-```bash
-git clone https://github.com/Madou-Shinni/gin-quickstart.git
+骑手推送规则
 
-# 初始化
-make init
+手动选择面试点 → 直接分配到选定面试点
 
-# 依赖整理
-go mod tidy
+未选择面试点，提供区域信息 → 根据区域内最近面试点 进行匹配
 
-# 运行（默认读取configs目录下的所有yaml配置文件）
-go run cmd/main.go [-c] [configPath]
-```
+未选择面试点，也未提供区域信息 → 按面试点负载均衡（均匀分配骑手）
 
-### 修改配置文件
-```yml
-app:
-  # 环境：dev or prod
-  env: dev
-  # 分布式节点(用于生成分布式id应保证各个机器节点不一致)
-  machineID: 1
-  server-port: 8080
-# 数据库
-mysql:
-  host: "127.0.0.1"
-  port: 3306
-  user: "root"
-  password: "123456"
-  dbname: "sni-msg"
-# redis
-redis:
-  addr: "127.0.0.1:6379"
-  password: ""
-  db: 0
-# jwt
-jwt:
-  # 过期时间(秒)
-  # access_token 过期时间 1小时
-  access-expire: 3600
-  # refresh_token 过期时间 7天
-  refresh-expire: 604800
-  # 签名
-  issuer: sni
-  # 密钥
-  secret: yoursecret
-```
+## 数据模型
 
-### 代码生成器
-`go install github.com/Madou-Shinni/gctl@latest`
 ```go
-gctl -m Article 自动生成代码
-生成代码如下
-internal/domain/article.go
-internal/service/article.go
-internal/data/article.go
-api/routers/article.go
-api/handle/article.go
+// 面试点模型
+type InterviewPoint struct {
+	model.Model
+	Name       string  `json:"name"`
+	Latitude   float64 `json:"latitude"`    // 纬度
+	Longitude  float64 `json:"longitude"`   // 经度
+	RiderCount int     `json:"rider_count"` // 当前骑手数量
+}
 
-GLOBAL OPTIONS:
---module value, -m value  生成模块的名称
---help, -h                show help
+// 骑手简历模型
+type Resume struct {
+    model.Model
+}
+
+// 简历推送记录模型
+type ResumeLog struct {
+    model.Model
+    RID uint `json:"rid"` // 简历
+    IID uint `json:"iid"` // 面试点
+}
 ```
 
-### 启动程序
+## 实现
 
-进入`/cmd/`目录运行main.go文件
-
-### 生成接口文档
-使用swag 1.7.x版本 `go install github.com/swaggo/swag/cmd/swag@v1.7.9`
 ```go
-swag init
+func (s *ResumeLogService) MatchIp(ctx context.Context, req ResumePushReq) (*domain.InterviewPoint, error) {
+	// 规则1：直接选择站点
+	if req.SelectedIID != nil {
+		if ip, err := validateIp(ctx, *req.SelectedIID); err != nil {
+			return nil, err
+		} else {
+			return ip, nil
+		}
+	}
+
+	// 规则2：区域匹配
+	if req.Latitude != 0 && req.Longitude != 0 {
+		if req.NearLimit == 0 {
+			// 默认附近20公里
+			req.NearLimit = 20
+		}
+		if ip, err := locateRegion(ctx, req.Latitude, req.Longitude, req.NearLimit); err != nil {
+			return nil, err
+		} else {
+			return ip, nil
+		}
+	}
+
+	// 规则3：均衡分配
+	return balancedAssignment(ctx)
+}
 ```
 
-### 同步api
-
-将api同步到数据库
-
-```shell
-make api-sync
+```go
+func validateIp(ctx context.Context, iid uint) (*domain.InterviewPoint, error) {
+	var ip *domain.InterviewPoint
+	if err := global.DB.WithContext(ctx).First(&ip, iid).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("面点不存在")
+		}
+		return nil, err
+	}
+	return ip, nil
+}
 ```
 
-## 组件
+```go
+func locateRegion(ctx context.Context, lat, lng float64, nearLimit float64) (*domain.InterviewPoint, error) {
+	var ipList []*domain.InterviewPoint
+	minLat, maxLat, minLon, maxLon := distance.GetNearbyBoundingBox(lat, lng, nearLimit)
+	db := global.DB.WithContext(ctx).Model(&domain.InterviewPoint{})
+	// 计算查询距离
+	db = db.Select("*", fmt.Sprintf(`6371 * ACOS(
+        COS(RADIANS(%f)) * COS(RADIANS(latitude)) * COS(RADIANS(longitude) - RADIANS(%f)) +
+        SIN(RADIANS(%f)) * SIN(RADIANS(latitude))
+    ) AS distance`, lat, lng, lat))
+	// 粗略删选
+	db = db.Where("latitude BETWEEN ? AND ? AND longitude BETWEEN ? AND ?", minLat, maxLat, minLon, maxLon)
+	err := db.Having("distance <= ?", nearLimit). // 精确筛选（使用别名）xx km内 注意：这里Having条件放在Count查询之后 否则会报错
+							Order("distance ASC").
+							Order("rider_count ASC").
+							Limit(1).
+							Find(&ipList).Error
+	if len(ipList) == 0 {
+		return nil, errors.New("未找到匹配的面试点")
+	}
+	return ipList[0], err
+}
+```
 
-### 日志组件
+```go
+func balancedAssignment(ctx context.Context) (*domain.InterviewPoint, error) {
+	var ips []*domain.InterviewPoint
+	if err := global.DB.WithContext(ctx).Order("rider_count ASC").Limit(1).Find(&ips).Error; err != nil {
+		return nil, err
+	}
 
-我们对zap日志进行了封装处理，以便于更简单的使用日志，如果你想自定义日志的使用可以修改`initialize/logger.go`文件中日志的初始化配置
+	if len(ips) == 0 {
+		return nil, errors.New("未找到匹配的面试点")
+	}
 
+	return ips[0], nil
+}
+```
+
+## 测试用例
+
+1. 运行测试用例TestPush
+
+[resume_log_test.go](test%2Fresume_log_test.go)
