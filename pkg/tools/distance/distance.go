@@ -22,3 +22,20 @@ func CalculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 func toRadians(degrees float64) float64 {
 	return degrees * math.Pi / 180
 }
+
+// GetNearbyBoundingBox 根据给定经纬度和范围（公里），计算附近范围的经纬度
+// 注意：不可靠计算！差距会随距离范围增大而增大
+func GetNearbyBoundingBox(lat, lon, distance float64) (minLat, maxLat, minLon, maxLon float64) {
+	// 计算给定经纬度范围内的矩形框
+	// 计算纬度范围
+	latChange := distance / earthRadius * (180 / math.Pi)
+	minLat = lat - latChange
+	maxLat = lat + latChange
+
+	// 计算经度范围
+	lonChange := distance / earthRadius * (180 / math.Pi) / math.Cos(lat*math.Pi/180)
+	minLon = lon - lonChange
+	maxLon = lon + lonChange
+
+	return minLat, maxLat, minLon, maxLon
+}
