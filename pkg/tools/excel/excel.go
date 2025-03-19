@@ -224,75 +224,162 @@ func StreamWriterAllRows(sw *excelize.StreamWriter, content [][]interface{}, mer
 func ParseExcelToSlice[T any](file multipart.File) ([]T, error) {
 	f, err := excelize.OpenReader(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open excel file failed: %w", err)
 	}
+	defer f.Close()
 
 	var slice []T
 	var headerMap map[string]int // 列标题与索引的映射
 
-	// 遍历所有工作表
-	for _, s := range f.GetSheetList() {
-		rows, err := f.GetRows(s)
-		if err != nil {
-			return nil, err
-		}
+	// 获取第一个工作表
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		return nil, errors.New("no sheets found in excel file")
+	}
+	sheet := sheets[0]
 
-		// 遍历所有行
-		for i, row := range rows {
-			if i == 0 {
-				// 取标题行，记录标题及其索引
-				headerMap = make(map[string]int)
-				for j, colCell := range row {
-					headerMap[colCell] = j
-				}
-				continue
-			}
+	// 获取所有行
+	rows, err := f.GetRows(sheet)
+	if err != nil {
+		return nil, fmt.Errorf("get rows failed: %w", err)
+	}
 
-			// 通过反射获取传入的结构体字段的值和tag标签，设置值
-			var structType T
-			val := reflect.ValueOf(&structType).Elem()
-			tp := val.Type()
-			if val.Kind() == reflect.Struct {
-				// 获取所有的字段和excel tag
-				for k := 0; k < val.NumField(); k++ {
-					field := val.Field(k)
-					structField := tp.Field(k)
-					excelTag := structField.Tag.Get("excel")
-					// 根据指定tag标签来设置值
-					if colIndex, ok := headerMap[excelTag]; ok {
-						switch field.Type().Kind() {
-						case reflect.String:
-							val.Field(k).SetString(row[colIndex])
-						case reflect.Int, reflect.Int32, reflect.Int64:
-							intVal, _ := strconv.Atoi(row[colIndex])
-							val.Field(k).SetInt(int64(intVal))
-						case reflect.TypeOf(time.Time{}).Kind():
-							parse, err := time.Parse("2006-01-02 15:04:05", row[colIndex])
-							if err != nil {
-								return nil, fmt.Errorf("err: %v\n", err)
-							}
-							val.Field(k).Set(reflect.ValueOf(parse))
-						case reflect.Pointer: // 指针指向类型
-							switch field.Type().Elem().Kind() {
-							case reflect.TypeOf(time.Time{}).Kind():
-								parse, err := time.Parse("2006-01-02 15:04:05", row[colIndex])
-								if err != nil {
-									return nil, fmt.Errorf("err: %v\n", err)
-								}
-								val.Field(k).Set(reflect.ValueOf(&parse))
-							case reflect.Int, reflect.Int32, reflect.Int64:
-								intVal, _ := strconv.Atoi(row[colIndex])
-								val.Field(k).Set(reflect.ValueOf(&intVal))
-							}
-						}
-					}
-				}
-			}
-			if !reflect.ValueOf(structType).IsZero() {
-				slice = append(slice, structType)
+	if len(rows) < 2 {
+		return nil, errors.New("excel file is empty or has no data rows")
+	}
+
+	// 处理标题行
+	headerMap = make(map[string]int)
+	for j, colCell := range rows[0] {
+		headerMap[colCell] = j
+	}
+
+	// 预分配切片容量
+	slice = make([]T, 0, len(rows)-1)
+
+	// 创建结构体类型信息缓存
+	var structType T
+	val := reflect.ValueOf(&structType).Elem()
+	tp := val.Type()
+
+	// 创建字段映射缓存
+	fieldMap := make(map[string]struct {
+		field     reflect.Value
+		fieldType reflect.Type
+		index     int
+	})
+
+	// 缓存字段信息
+	for k := 0; k < val.NumField(); k++ {
+		field := val.Field(k)
+		structField := tp.Field(k)
+		excelTag := structField.Tag.Get("excel")
+		if excelTag != "" {
+			fieldMap[excelTag] = struct {
+				field     reflect.Value
+				fieldType reflect.Type
+				index     int
+			}{
+				field:     field,
+				fieldType: field.Type(),
+				index:     k,
 			}
 		}
 	}
 
+	// 处理数据行
+	for i, row := range rows[1:] {
+		// 创建新的结构体实例
+		newVal := reflect.New(tp).Elem()
+
+		// 处理每一列
+		for tag, fieldInfo := range fieldMap {
+			colIndex, ok := headerMap[tag]
+			if !ok {
+				continue
+			}
+
+			// 检查列索引是否有效
+			if colIndex >= len(row) {
+				continue
+			}
+
+			cellValue := row[colIndex]
+			if cellValue == "" {
+				continue
+			}
+
+			// 设置字段值
+			if err := setFieldValue(newVal.Field(fieldInfo.index), cellValue); err != nil {
+				return nil, fmt.Errorf("row %d, column %s: %w", i+2, tag, err)
+			}
+		}
+
+		// 检查结构体是否为空
+		if !reflect.ValueOf(newVal.Interface()).IsZero() {
+			slice = append(slice, newVal.Interface().(T))
+		}
+	}
+
 	return slice, nil
+}
+
+// setFieldValue 设置字段值，支持多种类型转换
+func setFieldValue(field reflect.Value, value string) error {
+	// 处理指针类型
+	if field.Kind() == reflect.Ptr {
+		if field.IsNil() {
+			field.Set(reflect.New(field.Type().Elem()))
+		}
+		field = field.Elem()
+	}
+
+	// 处理空值
+	if value == "" {
+		return nil
+	}
+
+	// 根据字段类型进行转换
+	switch field.Kind() {
+	case reflect.String:
+		field.SetString(value)
+	case reflect.Int, reflect.Int32, reflect.Int64:
+		intVal, err := strconv.ParseInt(value, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid integer value: %w", err)
+		}
+		field.SetInt(intVal)
+	case reflect.Struct:
+		// 处理 time.Time 类型
+		if field.Type().String() == "time.Time" {
+			// 尝试多种时间格式
+			formats := []string{
+				"2006-01-02 15:04:05.999999999 -0700 MST",
+				"2006-01-02 15:04:05.999999999 -0700",
+				"2006-01-02 15:04:05.999999999",
+				"2006-01-02 15:04:05",
+				"2006-01-02",
+				time.RFC3339,
+				time.RFC3339Nano,
+			}
+			var t time.Time
+			var err error
+			for _, format := range formats {
+				t, err = time.Parse(format, value)
+				if err == nil {
+					break
+				}
+			}
+			if err != nil {
+				return fmt.Errorf("invalid time format: %w", err)
+			}
+			field.Set(reflect.ValueOf(t))
+			return nil
+		}
+		return fmt.Errorf("unsupported struct type: %v", field.Type())
+	default:
+		return fmt.Errorf("unsupported field type: %v", field.Kind())
+	}
+
+	return nil
 }
