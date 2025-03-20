@@ -178,81 +178,161 @@ func (e *ExcelTool) StreamWriteHead(sw *excelize.StreamWriter, data interface{})
 }
 
 func (e *ExcelTool) StreamWriteBodyWithMerge(sw *excelize.StreamWriter, d interface{}, mergeConditionIndex int, mergeCols []string) error {
+	// 判断参数的有效性
+	if sw == nil {
+		return errors.New("streamWriter cannot be nil")
+	}
+
 	// 判断d的数据类型
-	switch reflect.TypeOf(d).Kind() {
-	case reflect.Slice, reflect.Array:
-		// 是切片或者数组
-		values := reflect.ValueOf(d)
-		// 创建一个二维数组的数据集，用来存放最终数据集
-		data := make([][]interface{}, values.Len())
-		for i := 0; i < values.Len(); i++ {
-			// 取出切片中的每个结构体，利用反射获取值
-			record := values.Index(i).Elem()
-			if record.Kind() == reflect.Struct {
-				// 创建一个切片来表示一行数据
-				row := make([]interface{}, record.NumField())
-				for j := 0; j < record.NumField(); j++ {
-					// 遍历结构体中的字段，取出字段值
-					field := record.Field(j)
-					row[j] = excelize.Cell{
-						StyleID: 0,
-						Formula: "",
-						Value:   field.Interface(),
-					}
-				}
-				// 将每一行数据保存到二维数组中
-				data[i] = row
+	v := reflect.ValueOf(d)
+	if v.Kind() != reflect.Slice && v.Kind() != reflect.Array {
+		return errors.New("data must be a slice or array")
+	}
+
+	// 空数据处理
+	dataLen := v.Len()
+	if dataLen == 0 {
+		return nil // 没有数据，直接返回
+	}
+
+	// 预分配数据容量
+	data := make([][]interface{}, dataLen)
+
+	// 处理切片中的每个元素
+	for i := 0; i < dataLen; i++ {
+		item := v.Index(i)
+
+		// 确保元素是指针且可解引用
+		if item.Kind() != reflect.Ptr || item.IsNil() {
+			return fmt.Errorf("item at index %d is not a valid pointer", i)
+		}
+
+		record := item.Elem()
+		if record.Kind() != reflect.Struct {
+			return fmt.Errorf("item at index %d is not a struct", i)
+		}
+
+		// 获取结构体字段数量
+		fieldCount := record.NumField()
+		row := make([]interface{}, fieldCount)
+
+		// 处理每个字段
+		for j := 0; j < fieldCount; j++ {
+			field := record.Field(j)
+			// 使用封装的函数处理字段值
+			row[j] = excelize.Cell{
+				StyleID: 0,
+				Formula: "",
+				Value:   formatValueForExcel(field.Interface()),
 			}
 		}
 
-		row := 2
-		if e.remark != "" {
-			row++
+		// 保存数据行
+		data[i] = row
+	}
+
+	// 计算起始行号
+	startRow := 2
+	if e.remark != "" {
+		startRow++
+	}
+
+	// 合并单元格处理
+	var pendingMerges []struct {
+		startRow int
+		endRow   int
+		column   string
+	}
+
+	if len(mergeCols) > 0 && mergeConditionIndex >= 0 && mergeConditionIndex < len(data[0]) {
+		// 初始化合并状态
+		mergeStartRow := startRow
+		lastValue := data[0][mergeConditionIndex]
+
+		// 遍历所有行寻找合并点
+		for i := 1; i < dataLen; i++ {
+			currentValue := data[i][mergeConditionIndex]
+			valueChanged := !reflect.DeepEqual(lastValue, currentValue)
+			isLastRow := i == dataLen-1
+
+			// 当值变化或到达最后一行时处理合并
+			if valueChanged || isLastRow {
+				mergeEndRow := startRow + i - 1
+				if isLastRow && !valueChanged {
+					mergeEndRow = startRow + i // 包含最后一行
+				}
+
+				// 只有当合并范围至少有两行时才进行合并
+				if mergeEndRow > mergeStartRow {
+					for _, col := range mergeCols {
+						pendingMerges = append(pendingMerges, struct {
+							startRow int
+							endRow   int
+							column   string
+						}{mergeStartRow, mergeEndRow, col})
+					}
+				}
+
+				// 重置合并状态
+				mergeStartRow = startRow + i
+				lastValue = currentValue
+			}
+		}
+	}
+
+	// 写入数据行
+	currentRow := startRow
+	for i, rowData := range data {
+		// 逐行插入数据
+		axis, err := excelize.CoordinatesToCellName(1, currentRow)
+		if err != nil {
+			return fmt.Errorf("failed to convert coordinates for row %d: %w", i+startRow, err)
 		}
 
-		var mergeStarted bool
-		var mergeStartedRow, mergeEndedRow int
-		for i := range data {
-			if i < len(data)-1 {
-				if !mergeStarted && data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex] {
-					// 合并单元格 开始
-					mergeStarted = true
-					mergeStartedRow = row
-				}
-				if mergeStarted && (data[i][mergeConditionIndex] != data[i+1][mergeConditionIndex]) {
-					// 后一行合并条件不同 合并结束
-					mergeEndedRow = row
-					mergeStarted = false
-					for _, col := range mergeCols {
-						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeStartedRow), fmt.Sprintf("%s%d", col, mergeEndedRow))
-					}
-				}
-				if mergeStarted && (data[i][mergeConditionIndex] == data[i+1][mergeConditionIndex]) && i+1 == len(data)-1 {
-					// 后是最后一行并且和前数据相同 合并结束
-					mergeEndedRow = row + 1
-					mergeStarted = false
-					for _, col := range mergeCols {
-						sw.MergeCell(fmt.Sprintf("%s%d", col, mergeStartedRow), fmt.Sprintf("%s%d", col, mergeEndedRow))
-					}
-				}
-			}
-			// 逐行插入数据 将数据写入excel
-			// 数据都是从列号1开始；行号从2开始，因为第一行为标题行
-			axis, err := excelize.CoordinatesToCellName(1, row)
-			if err != nil {
-				return err
-			}
-			if err := sw.SetRow(axis, data[i], excelize.RowOpts{Height: 16}); err != nil {
-				return err
-			}
-			row++
+		if err := sw.SetRow(axis, rowData, excelize.RowOpts{Height: 16}); err != nil {
+			return fmt.Errorf("failed to write row %d: %w", i+startRow, err)
 		}
-	default:
-		// 不支持改数据类型
-		return errors.New("resolution of this data type is not supported")
+
+		currentRow++
+	}
+
+	// 执行所有的单元格合并
+	for _, merge := range pendingMerges {
+		startCell := fmt.Sprintf("%s%d", merge.column, merge.startRow)
+		endCell := fmt.Sprintf("%s%d", merge.column, merge.endRow)
+
+		// 合并单元格
+		if err := sw.MergeCell(startCell, endCell); err != nil {
+			return fmt.Errorf("failed to merge cells %s:%s: %w", startCell, endCell, err)
+		}
 	}
 
 	return nil
+}
+
+// formatValueForExcel 格式化值以适应Excel的需求
+func formatValueForExcel(value interface{}) interface{} {
+	if value == nil {
+		return ""
+	}
+
+	v := reflect.ValueOf(value)
+
+	// 处理指针类型
+	if v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return ""
+		}
+		return formatValueForExcel(v.Elem().Interface())
+	}
+
+	// 处理时间类型
+	if t, ok := value.(time.Time); ok {
+		return t.Format("2006-01-02 15:04:05")
+	}
+
+	// 返回原始值
+	return value
 }
 
 func (e *ExcelTool) Model(m interface{}) *ExcelTool {
