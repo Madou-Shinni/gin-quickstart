@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	"io"
 	"log"
-	"mime/multipart"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -221,7 +221,7 @@ func StreamWriterAllRows(sw *excelize.StreamWriter, content [][]interface{}, mer
 // | 李嘉图   | 2000-01-20 00:00:00 | 2000-01-20 00:00:00 |
 // | Ricardo | 2000-01-20 00:00:00 | 2000-01-20 00:00:00 |
 // +---------+---------------------+---------------------+
-func ParseExcelToSlice[T any](file multipart.File) ([]T, error) {
+func ParseExcelToSlice[T any](file io.Reader) ([]T, error) {
 	f, err := excelize.OpenReader(file)
 	if err != nil {
 		return nil, fmt.Errorf("open excel file failed: %w", err)
