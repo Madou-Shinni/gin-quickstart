@@ -145,7 +145,14 @@ func (s *DataImportService) Import(ctx context.Context, req domain.DataImport) (
 	return nil, nil
 }
 
-func demoExcelTpl(ctx context.Context, tool *excel.ExcelTool) error {
+func demoExcelTpl(ctx context.Context, tool *excel.ExcelTool, fns ...func(ctx context.Context, tool *excel.ExcelTool) error) error {
 	tool.Model(&DemoExcelTpl{})
+
+	for _, f := range fns {
+		if err := f(ctx, tool); err != nil {
+			return err
+		}
+	}
+
 	return tool.Flush()
 }

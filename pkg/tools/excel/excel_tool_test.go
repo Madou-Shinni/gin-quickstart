@@ -9,9 +9,10 @@ import (
 
 // 导出excel表，复杂类型给定string，业务上自己转换
 type Data struct {
-	ID   uint   `excel:"id"`
-	Name string `excel:"姓名"`
-	Age  int    `excel:"年龄"`
+	ID      uint   `excel:"id"`
+	Name    string `excel:"姓名"`
+	Age     int    `excel:"年龄"`
+	IsAdult bool   `excel:"是否成年"`
 }
 
 func TestNewExcelTool(t *testing.T) {
@@ -182,6 +183,30 @@ func TestExcelTool_Remark(t *testing.T) {
 	err := tool.Model(&Data{}).Remark(`填写说明:
 1.请仔细阅读本填写说明，若填写不符合规则，将导致数据导入失败
 `).Flush()
+	assert.Equal(t, nil, err)
+
+	// 将文件流保存到磁盘
+	if err := tool.SaveAs("test.xlsx"); err != nil {
+		t.Log(err)
+		return
+	}
+}
+
+func TestExcelTool_FormatBool(t *testing.T) {
+	// 创建一个文件流
+	tool := NewExcelTool("Sheet1")
+	if tool == nil {
+		t.Error("tool is nil")
+		return
+	}
+
+	err := tool.Model(&Data{}).WriteBody([]*Data{
+		{ID: 1, Name: "张三", Age: 17},
+		{ID: 2, Name: "李四", Age: 27, IsAdult: true},
+	}).FormatBool(map[bool]string{
+		true:  "是",
+		false: "否",
+	}).Flush()
 	assert.Equal(t, nil, err)
 
 	// 将文件流保存到磁盘
