@@ -8,6 +8,7 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/request"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/scopes"
+	"strings"
 )
 
 type DemoRepo struct {
@@ -50,9 +51,14 @@ func (s *DemoRepo) List(ctx context.Context, page domain.PageDemoSearch) ([]doma
 	// db
 	db := global.DB.WithContext(ctx).Model(&domain.Demo{})
 
-	// TODO：条件过滤
+	if page.Name != "" {
+		db.Where("name LIKE ?", "%"+page.Name+"%")
+	}
 
-	err = db.Count(&count).Scopes(scopes.Paginate(page.PageSearch), scopes.OrderBy(page.OrderBy)).Find(&demoList).Error
+	// TODO：条件过滤
+	split := strings.Split(page.TagsQuery, ",")
+	sp := scopes.MatchStringSliceScope("tags", split, true)
+	err = db.Scopes(sp).Count(&count).Scopes(scopes.Paginate(page.PageSearch), scopes.OrderBy(page.OrderBy)).Find(&demoList).Error
 
 	return demoList, count, err
 }
