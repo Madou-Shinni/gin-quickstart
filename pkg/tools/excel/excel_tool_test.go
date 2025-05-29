@@ -13,6 +13,7 @@ type Data struct {
 	Name    string `excel:"姓名"`
 	Age     int    `excel:"年龄"`
 	IsAdult bool   `excel:"是否成年"`
+	IsOk    *bool  `excel:"是否"`
 }
 
 func TestNewExcelTool(t *testing.T) {
@@ -202,7 +203,7 @@ func TestExcelTool_FormatBool(t *testing.T) {
 
 	err := tool.Model(&Data{}).WriteBody([]*Data{
 		{ID: 1, Name: "张三", Age: 17},
-		{ID: 2, Name: "李四", Age: 27, IsAdult: true},
+		{ID: 2, Name: "李四", Age: 27, IsAdult: true, IsOk: new(bool)},
 	}).FormatBool(map[bool]string{
 		true:  "是",
 		false: "否",

@@ -187,6 +187,14 @@ func (e *ExcelTool) StreamWriteHead(sw *excelize.StreamWriter, data interface{})
 }
 
 func (e *ExcelTool) formatValue(v reflect.Value) (any, error) {
+	// 处理指针类型
+	if v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return nil, nil // 或返回 "", 0，视你的使用场景而定
+		}
+		v = v.Elem() // 解引用
+	}
+
 	switch v.Kind() {
 	case reflect.Bool:
 		if e.formatBool != nil {
