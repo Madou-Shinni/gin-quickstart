@@ -2,42 +2,80 @@ package gorm_plugin
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-	"log"
+	"time"
+
+	"github.com/Madou-Shinni/go-logger"
+	"go.uber.org/zap"
+	gormlog "gorm.io/gorm/logger"
 )
 
-// 定义上下文中的租户 ID 键
-type logIDKey struct{}
+// GormLogger 实现gorm.io/gorm/logger.Interface接口
+var _ gormlog.Interface = (*GormLogger)(nil)
 
-// 插件结构
-type logPlugin struct{}
-
-// 初始化租户插件
-func NewLogPlugin() *logPlugin {
-	return &logPlugin{}
+type GormLogger struct {
+	level gormlog.LogLevel
 }
 
-// 注册钩子以自动添加租户 ID 条件
-func (tp *logPlugin) Apply(db *gorm.DB) {
-	// 在查询前设置租户 ID 条件
-	db.Callback().Query().After("gorm:query").Register("log:query", func(db *gorm.DB) {
-		if logID, ok := db.Statement.Context.Value(logIDKey{}).(string); ok && db.Statement.Schema != nil {
-			explain := db.Statement.Explain(db.Statement.SQL.String(), db.Statement.Vars...)
-			log.Printf("log id %s sql %s", logID, explain)
-		}
-	})
+// NewGormLogger 创建GORM日志适配器
+func NewGormLogger() *GormLogger {
+	return &GormLogger{
+		level: gormlog.Info,
+	}
 }
 
-// 中间件，提取租户 ID 并存储在 Gin 的上下文中
-func LogMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		logID := c.GetHeader("X-log-ID")
-		if logID != "" {
-			ctx := context.WithValue(c.Request.Context(), logIDKey{}, logID)
-			ctx = context.WithValue(ctx, "log-id", logID)
-			c.Request = c.Request.WithContext(ctx)
-			c.Next()
-		}
+// LogMode 设置日志级别
+func (l *GormLogger) LogMode(level gormlog.LogLevel) gormlog.Interface {
+	newLogger := *l
+	newLogger.level = level
+	return &newLogger
+}
+
+// Info 记录信息日志
+func (l *GormLogger) Info(ctx context.Context, msg string, data ...interface{}) {
+	if l.level >= gormlog.Info {
+		logger.Info(msg, zap.Any("data", data))
+	}
+}
+
+// Warn 记录警告日志
+func (l *GormLogger) Warn(ctx context.Context, msg string, data ...interface{}) {
+	if l.level >= gormlog.Warn {
+		logger.Warn(msg, zap.Any("data", data))
+	}
+}
+
+// Error 记录错误日志
+func (l *GormLogger) Error(ctx context.Context, msg string, data ...interface{}) {
+	if l.level >= gormlog.Error {
+		logger.Error(msg, zap.Any("data", data))
+	}
+}
+
+// Trace 记录SQL执行跟踪日志
+func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
+	if l.level <= gormlog.Silent {
+		return
+	}
+
+	elapsed := time.Since(begin)
+	sql, rows := fc()
+
+	logFields := []zap.Field{
+		zap.String("sql", sql),
+		zap.Int64("rows", rows),
+		zap.Duration("elapsed", elapsed),
+	}
+
+	if logID, ok := ctx.Value("log-id").(string); ok {
+		logFields = append(logFields, zap.String("log-id", logID))
+	}
+
+	switch {
+	case err != nil && l.level >= gormlog.Error:
+		logger.Error("SQL Error", append(logFields, zap.Error(err))...)
+	case elapsed > 200*time.Millisecond && l.level >= gormlog.Warn:
+		logger.Warn("SQL Slow Query", logFields...)
+	case l.level >= gormlog.Info:
+		logger.Info("SQL Query", logFields...)
 	}
 }

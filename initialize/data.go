@@ -4,8 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/message_queue"
-	"github.com/redis/go-redis/v9"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,11 +11,15 @@ import (
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/global"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/gorm_plugin"
+	"github.com/Madou-Shinni/gin-quickstart/pkg/tools/message_queue"
 	"github.com/fsnotify/fsnotify"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	gormlog "gorm.io/gorm/logger"
 )
 
 var (
@@ -95,6 +97,7 @@ func MysqlInit(config *conf.MysqlConfig) {
 		QueryFields:                              true, // 打印sql
 		DisableForeignKeyConstraintWhenMigrating: true, // 禁用外键约束
 		//SkipDefaultTransaction: true, //禁用事务
+		Logger: gorm_plugin.NewGormLogger().LogMode(gormlog.Error),
 	})
 
 	sqlDB, _ := db.DB()
