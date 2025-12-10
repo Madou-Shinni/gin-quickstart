@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"sync"
+
 	"github.com/Madou-Shinni/gin-quickstart/internal/data"
 	"github.com/Madou-Shinni/gin-quickstart/internal/domain"
 	"github.com/Madou-Shinni/gin-quickstart/pkg/constant"
@@ -13,7 +15,6 @@ import (
 	csmodel "github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"go.uber.org/zap"
-	"sync"
 )
 
 const (
@@ -31,7 +32,7 @@ g = _, _
 e = some(where (p.eft == allow))
 
 [matchers]
-m = r.sub == p.sub && keyMatch4(r.obj, p.obj) && regexMatch(r.act, p.act)
+m = g(r.sub, p.sub, r.obj) && keyMatch4(r.obj, p.obj) && regexMatch(r.act, p.act)
 `
 )
 
