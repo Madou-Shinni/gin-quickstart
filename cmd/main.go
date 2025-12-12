@@ -2,14 +2,16 @@ package main
 
 // 使用 _引入依赖项在main函数执行会直接调用init函数
 import (
-	"github.com/Madou-Shinni/gin-quickstart/initialize"
-	"github.com/Madou-Shinni/gin-quickstart/job"
-	"github.com/Madou-Shinni/gin-quickstart/task"
-	"github.com/Madou-Shinni/go-logger"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/Madou-Shinni/gin-quickstart/initialize"
+	"github.com/Madou-Shinni/gin-quickstart/job"
+	"github.com/Madou-Shinni/gin-quickstart/route"
+	"github.com/Madou-Shinni/gin-quickstart/task"
+	"github.com/Madou-Shinni/go-logger"
 )
 
 // 生成swagger文档
@@ -22,7 +24,7 @@ import (
 
 func main() {
 	// 启动服务(使用goroutine解决服务启动时程序阻塞问题)
-	go initialize.RunServer()
+	go route.RunServer()
 	go job.RunConsumer()
 	go task.V2Init()
 	// 监听信号

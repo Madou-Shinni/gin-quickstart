@@ -1,7 +1,9 @@
-package initialize
+package route
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/Madou-Shinni/gin-quickstart/api/routers"
 	_ "github.com/Madou-Shinni/gin-quickstart/docs"
 	"github.com/Madou-Shinni/gin-quickstart/internal/conf"
@@ -13,7 +15,6 @@ import (
 	"github.com/hibiken/asynqmon"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"log"
 )
 
 // RunServer 启动服务
@@ -65,6 +66,7 @@ func RunServer() {
 	routers.SysMenuRouterRegister(private)
 	routers.DataImportRouterRegister(public)
 	routers.NoPageRouterRegister(private)
+	routers.ArticleRouterRegister(public)
 
 	log.Printf("[GIN-QuickStart] 接口文档地址：http://localhost:%v/swagger/index.html\n", conf.Conf.ServerPort)
 
